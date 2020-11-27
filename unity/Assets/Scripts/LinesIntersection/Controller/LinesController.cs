@@ -13,4 +13,19 @@ public class LinesController : MonoBehaviour {
 	void Update () {
 		
 	}
+
+	// To draw a line segment.
+	public void AddSegment() {
+
+	}
+
+	//To move a drawn line segment
+	public void MoveSegment() {
+
+	}
+
+	//To check the solution
+	public void CheckSolution(){
+		
+	}
 }

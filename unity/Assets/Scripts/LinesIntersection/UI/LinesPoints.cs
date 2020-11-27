@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LinesSegments : MonoBehaviour {
+public class LinesPoints : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
@@ -14,6 +14,11 @@ public class LinesSegments : MonoBehaviour {
 		
 	}
 
+	//For click
+	void OnMouseDown(){
+
+	}
+
 	//For highlight
 	void OnMouseEnter(){
 
@@ -21,11 +26,6 @@ public class LinesSegments : MonoBehaviour {
 
 	//To unhighlight
 	void OnMouseExit(){
-		
-	}
-
-	// To delete a line segment
-	void OnMouseDown(){
 		
 	}
 }
