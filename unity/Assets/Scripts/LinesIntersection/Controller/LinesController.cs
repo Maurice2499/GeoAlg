@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class LinesController : MonoBehaviour {
 
+	[SerializeField] private GameObject wallPrefab;
+
 	// Use this for initialization
 	void Start () {
 		
@@ -11,6 +13,9 @@ public class LinesController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		if (Input.GetMouseButtonDown(0)) {
+			GameObject wall = Instantiate(wallPrefab);
+        }
 		
 	}
 
