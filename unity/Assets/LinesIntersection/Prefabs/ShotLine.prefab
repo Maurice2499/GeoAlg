@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4223777846889362}
   - component: {fileID: 120719196815662376}
   m_Layer: 0
-  m_Name: HintLine
+  m_Name: ShotLine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
