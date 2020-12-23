@@ -6,6 +6,7 @@ public class LinesController : MonoBehaviour {
 
 	[SerializeField] private GameObject wallPrefab;
 	[SerializeField] private GameObject cannonPrefab;
+	[SerializeField] private GameObject hintLinePrefab;
 
 	private Vector3 shotStart;
 	private Vector3 shotEnd;
@@ -22,7 +23,7 @@ public class LinesController : MonoBehaviour {
 		if (Input.GetMouseButtonDown(0)) {
 			shotStart = Camera.main.ScreenToWorldPoint(Input.mousePosition + 10 * Vector3.forward);
 			cannon = Instantiate(cannonPrefab, shotStart, Quaternion.identity);
-			shot = Instantiate(wallPrefab);
+			shot = Instantiate(hintLinePrefab);
 			shot.GetComponent<LineRenderer>().SetPosition(0, shotStart);
 
         } else if (Input.GetMouseButton(0)) {
