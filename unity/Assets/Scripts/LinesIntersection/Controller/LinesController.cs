@@ -41,19 +41,12 @@ public class LinesController : MonoBehaviour {
     // Update is called once per frame
     void Update () {
 		if (Input.GetMouseButtonDown(0)) {
-			shotStart = Camera.main.ScreenToWorldPoint(Input.mousePosition + 10 * Vector3.forward);
-			shot = Instantiate(shotLinePrefab, shotStart, Quaternion.identity);
-			shot.GetComponent<LineRenderer>().SetPosition(0, shotStart);
-
+			CreateNewShot();
         } else if (Input.GetMouseButton(0)) {
-			shotEnd = shotStart + (Camera.main.ScreenToWorldPoint(Input.mousePosition + 10 * Vector3.forward) - shotStart).normalized * 25;
-			shot.GetComponent<LineRenderer>().SetPosition(1, shotEnd);
-			Transform cannon = shot.transform.Find("Cannon");
-			cannon.rotation = Quaternion.LookRotation(Vector3.forward, shotEnd - cannon.position);
+			UpdateNewShotEndpoint();
 		} else if (Input.GetMouseButtonUp(0)) {
-
+			AddNewShot();
         }
-		
 	}
 
 	public void CreateNewShot() {
