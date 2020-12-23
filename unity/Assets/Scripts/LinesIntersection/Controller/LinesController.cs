@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Util.Geometry;
 
 public class LinesController : MonoBehaviour {
 
@@ -13,20 +14,32 @@ public class LinesController : MonoBehaviour {
 	private GameObject shot;
 	private HashSet<GameObject> shots = new HashSet<GameObject>();
 
-	// Use this for initialization
-	void Start () {
+    private List<LineSegment> wallCoordinates = new List<LineSegment>();
+    private List<GameObject> wallObjects = new List<GameObject>();
+
+    // Use this for initialization
+    void Start()
+    {
         for (int i = 0; i < 10; i++)
         {
-            Vector3 screenPosition1 = Camera.main.ScreenToWorldPoint(new Vector3(Random.Range(0, Screen.width), Random.Range(0, Screen.height), 1));
-            Vector3 screenPosition2 = Camera.main.ScreenToWorldPoint(new Vector3(Random.Range(0, Screen.width), Random.Range(0, Screen.height), 1));
+            Vector3 screenPosition1 = Camera.main.ScreenToWorldPoint(new Vector3(Random.Range(0, Screen.width), Random.Range(0, Screen.height), 0));
+            Vector3 screenPosition2 = Camera.main.ScreenToWorldPoint(new Vector3(Random.Range(0, Screen.width), Random.Range(0, Screen.height), 0));
+            screenPosition1.z = 0;
+            screenPosition2.z = 0;
+            Vector2 projectedPosition1 = new Vector2(screenPosition1.x, screenPosition1.y);
+            Vector2 projectedPosition2 = new Vector2(screenPosition2.x, screenPosition2.y);
+            LineSegment line = new LineSegment(projectedPosition1, projectedPosition2);
+            wallCoordinates.Add(line);
+
             GameObject wall = Instantiate(wallPrefab);
             wall.GetComponent<LineRenderer>().SetPosition(0, screenPosition1);
             wall.GetComponent<LineRenderer>().SetPosition(1, screenPosition2);
+            wallObjects.Add(wall);
         }
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update () {
 		if (Input.GetMouseButtonDown(0)) {
 			shotStart = Camera.main.ScreenToWorldPoint(Input.mousePosition + 10 * Vector3.forward);
 			shot = Instantiate(shotLinePrefab, shotStart, Quaternion.identity);
