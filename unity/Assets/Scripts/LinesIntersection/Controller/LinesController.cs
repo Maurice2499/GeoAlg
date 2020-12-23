@@ -11,6 +11,8 @@ public class LinesController : MonoBehaviour {
 	[SerializeField] private Transform wallObjects;
 	[SerializeField] private int maxWalls;
 
+	private int maxShots = 5;
+
 	private Vector3 shotStart;
 	private Vector3 shotEnd;
 	private GameObject shot;
@@ -35,19 +37,24 @@ public class LinesController : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
+		Debug.LogWarning("Warning: maxShots is not changed based on GenerateNewLevel()!");
+		Debug.LogWarning("Warning: intersections are brute-forced!");
 		GenerateNewLevel(maxWalls);
 	}
 
     // Update is called once per frame
     void Update () {
-		if (Input.GetMouseButtonDown(0)) {
+		if (Input.GetMouseButtonDown(0) && shots.Count < maxShots) {
 			CreateNewShot();
-		} else if (Input.GetMouseButton(0)) {
+		} else if (Input.GetMouseButton(0) && shots.Count < maxShots) {
 			UpdateNewShotEndpoint();
-		} else if (Input.GetMouseButtonUp(0)) {
+		} else if (Input.GetMouseButtonUp(0) && shots.Count < maxShots) {
 			AddNewShot();
+			if (CheckSolution()) {
+				GenerateNewLevel(maxWalls + 5);
+            }
         } else if (Input.GetMouseButtonDown(1)) {
-			
+			RemoveShot(Camera.main.ScreenToWorldPoint(Input.mousePosition + 10 * Vector3.forward));
         }
 		if (Input.GetKeyDown(KeyCode.Space)) {
 			GenerateNewLevel(maxWalls);
@@ -120,11 +127,38 @@ public class LinesController : MonoBehaviour {
 	}
 
 	public void RemoveShot(Vector3 pos) {
+		if (shots.Count == 0) {
+			return;
+        }
 
+		float min = Vector3.Distance(shots[0].line.Point1, pos);
+		LineObject closest = shots[0];
+
+		for (int i = 1; i < shots.Count; i++) {
+			if (Vector3.Distance(shots[i].line.Point1, pos) < min) { // Alternatively, closest line: shots[i].line.DistanceToPoint(pos) < min
+				closest = shots[i];
+				min = shots[i].line.DistanceToPoint(pos);
+			}
+        }
+
+		shots.Remove(closest);
+		Destroy(closest.obj);
     }
 
 	//To check the solution
-	public void CheckSolution(){
-		
+	public bool CheckSolution(){
+		foreach (LineObject wall in walls) {
+			bool hit = false;
+			foreach (LineObject shot in shots) {
+				if (shot.line.Intersect(wall.line) != null) {
+					hit = true;
+					break;
+                }
+            }
+			if (!hit) {
+				return false;
+            }
+        }
+		return true;
 	}
 }
