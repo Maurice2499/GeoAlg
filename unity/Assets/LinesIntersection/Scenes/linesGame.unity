@@ -163,6 +163,11 @@ MonoBehaviour:
   shotObjects: {fileID: 2074432952}
   wallObjects: {fileID: 642996244}
   maxWalls: 10
+  castleSprite: {fileID: 21300000, guid: e39929a7601ce6843a3b415bc1078fa8, type: 3}
+  castleDestroyedSprite: {fileID: 21300000, guid: 72682984d81f7fc46b5762aa3a12d749,
+    type: 3}
+  wallMat: {fileID: 2100000, guid: 245749e7568f5c54fa3dda8806e6ab4e, type: 2}
+  wallDestroyedMat: {fileID: 2100000, guid: abf1677ee566d2a4d9d47cd3a4f72c4f, type: 2}
 --- !u!1 &642996243
 GameObject:
   m_ObjectHideFlags: 0

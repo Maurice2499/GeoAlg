@@ -11,6 +11,11 @@ public class LinesController : MonoBehaviour {
 	[SerializeField] private Transform wallObjects;
 	[SerializeField] private int maxWalls;
 
+	[SerializeField] private Sprite castleSprite;
+	[SerializeField] private Sprite castleDestroyedSprite;
+	[SerializeField] private Material wallMat;
+	[SerializeField] private Material wallDestroyedMat;
+
 	private int maxShots = 5;
 
 	private Vector3 shotStart;
@@ -52,7 +57,7 @@ public class LinesController : MonoBehaviour {
 			AddNewShot();
 			if (CheckSolution()) {
 				maxWalls += 5;
-				GenerateNewLevel(maxWalls);
+				SetWallsDestroyed(true);
             }
         } else if (Input.GetMouseButtonDown(1)) {
 			RemoveShot(Camera.main.ScreenToWorldPoint(Input.mousePosition + 10 * Vector3.forward));
@@ -144,6 +149,24 @@ public class LinesController : MonoBehaviour {
 
 		shots.Remove(closest);
 		Destroy(closest.obj);
+    }
+
+	private void SetWallsDestroyed(bool destroyed) {
+		Sprite sprite;
+		Material mat;
+		if (destroyed) {
+			sprite = castleDestroyedSprite;
+			mat = wallDestroyedMat;
+        } else {
+			sprite = castleSprite;
+			mat = wallMat;
+        }
+
+		foreach (LineObject wall in walls) {
+			wall.obj.GetComponent<Renderer>().material = mat;
+			wall.obj.transform.Find("StartCastle").GetComponent<SpriteRenderer>().sprite = sprite;
+			wall.obj.transform.Find("EndCastle").GetComponent<SpriteRenderer>().sprite = sprite;
+		}
     }
 
 	//To check the solution
