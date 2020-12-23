@@ -30,7 +30,7 @@ public class LinesController : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 10; i++)
         {
             Vector3 screenPosition1 = Camera.main.ScreenToWorldPoint(new Vector3(Random.Range(0, Screen.width), Random.Range(0, Screen.height), 0));
             Vector3 screenPosition2 = Camera.main.ScreenToWorldPoint(new Vector3(Random.Range(0, Screen.width), Random.Range(0, Screen.height), 0));
@@ -39,13 +39,24 @@ public class LinesController : MonoBehaviour {
             Vector2 projectedPosition1 = new Vector2(screenPosition1.x, screenPosition1.y);
             Vector2 projectedPosition2 = new Vector2(screenPosition2.x, screenPosition2.y);
 
-            LineSegment line = new LineSegment(projectedPosition1, projectedPosition2);
+            LineSegment newLine = new LineSegment(projectedPosition1, projectedPosition2);
 
-            GameObject wall = Instantiate(wallPrefab, wallObjects);
-            wall.GetComponent<LineRenderer>().SetPosition(0, screenPosition1);
-            wall.GetComponent<LineRenderer>().SetPosition(1, screenPosition2);
+			// TODO: later use intersection algorithm for this
+			bool intersecting = false;
+			foreach (LineObject wall in walls) {
+				if (wall.line.Intersect(newLine) != null) {
+					intersecting = true;
+					break;
+                }
+			}
 
-			walls.Add(new LineObject(line, wall));
+			if (!intersecting) {
+				GameObject newWall = Instantiate(wallPrefab, wallObjects);
+				newWall.GetComponent<LineRenderer>().SetPosition(0, screenPosition1);
+				newWall.GetComponent<LineRenderer>().SetPosition(1, screenPosition2);
+
+				walls.Add(new LineObject(newLine, newWall));
+			}
         }
     }
 
