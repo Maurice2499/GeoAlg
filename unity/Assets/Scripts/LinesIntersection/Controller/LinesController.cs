@@ -11,6 +11,7 @@ public class LinesController : MonoBehaviour {
 	private Vector3 shotStart;
 	private Vector3 shotEnd;
 	private GameObject shot;
+	private HashSet<GameObject> shots = new HashSet<GameObject>();
 
 	// Use this for initialization
 	void Start () {
