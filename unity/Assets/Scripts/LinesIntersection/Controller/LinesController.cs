@@ -8,19 +8,29 @@ public class LinesController : MonoBehaviour {
 	[SerializeField] private GameObject wallPrefab;
 	[SerializeField] private GameObject shotLinePrefab;
 	[SerializeField] private Transform shotObjects;
+	[SerializeField] private Transform wallObjects;
 
 	private Vector3 shotStart;
 	private Vector3 shotEnd;
 	private GameObject shot;
-	private HashSet<GameObject> shots = new HashSet<GameObject>();
+	private List<LineObject> shots = new List<LineObject>();
 
-    private List<LineSegment> wallCoordinates = new List<LineSegment>();
-    private List<GameObject> wallObjects = new List<GameObject>();
+    private List<LineObject> walls = new List<LineObject>();
+
+	struct LineObject {
+		public LineSegment line;
+		public GameObject obj;
+
+		public LineObject(LineSegment line, GameObject obj) {
+			this.line = line;
+			this.obj = obj;
+        }
+    }
 
     // Use this for initialization
     void Start()
     {
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 3; i++)
         {
             Vector3 screenPosition1 = Camera.main.ScreenToWorldPoint(new Vector3(Random.Range(0, Screen.width), Random.Range(0, Screen.height), 0));
             Vector3 screenPosition2 = Camera.main.ScreenToWorldPoint(new Vector3(Random.Range(0, Screen.width), Random.Range(0, Screen.height), 0));
@@ -28,13 +38,14 @@ public class LinesController : MonoBehaviour {
             screenPosition2.z = 0;
             Vector2 projectedPosition1 = new Vector2(screenPosition1.x, screenPosition1.y);
             Vector2 projectedPosition2 = new Vector2(screenPosition2.x, screenPosition2.y);
-            LineSegment line = new LineSegment(projectedPosition1, projectedPosition2);
-            wallCoordinates.Add(line);
 
-            GameObject wall = Instantiate(wallPrefab);
+            LineSegment line = new LineSegment(projectedPosition1, projectedPosition2);
+
+            GameObject wall = Instantiate(wallPrefab, wallObjects);
             wall.GetComponent<LineRenderer>().SetPosition(0, screenPosition1);
             wall.GetComponent<LineRenderer>().SetPosition(1, screenPosition2);
-            wallObjects.Add(wall);
+
+			walls.Add(new LineObject(line, wall));
         }
     }
 
@@ -42,10 +53,12 @@ public class LinesController : MonoBehaviour {
     void Update () {
 		if (Input.GetMouseButtonDown(0)) {
 			CreateNewShot();
-        } else if (Input.GetMouseButton(0)) {
+		} else if (Input.GetMouseButton(0)) {
 			UpdateNewShotEndpoint();
 		} else if (Input.GetMouseButtonUp(0)) {
 			AddNewShot();
+        } else if (Input.GetMouseButtonDown(1)) {
+			
         }
 	}
 
@@ -66,20 +79,15 @@ public class LinesController : MonoBehaviour {
 		if (shotEnd.Equals(shotStart)) {
 			Destroy(shot);
         } else {
-			shots.Add(shot);
+			LineSegment line = new LineSegment(shotStart, shotEnd);
+			shots.Add(new LineObject(line, shot));
         }
 		shot = null;
     }
 
-	// To draw a line segment.
-	public void AddSegment() {
+	public void RemoveShot(Vector3 pos) {
 
-	}
-
-	//To move a drawn line segment
-	public void MoveSegment() {
-
-	}
+    }
 
 	//To check the solution
 	public void CheckSolution(){
