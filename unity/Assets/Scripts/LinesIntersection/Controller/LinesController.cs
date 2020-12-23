@@ -6,6 +6,7 @@ public class LinesController : MonoBehaviour {
 
 	[SerializeField] private GameObject wallPrefab;
 	[SerializeField] private GameObject shotLinePrefab;
+	[SerializeField] private Transform shotObjects;
 
 	private Vector3 shotStart;
 	private Vector3 shotEnd;
@@ -32,7 +33,7 @@ public class LinesController : MonoBehaviour {
 
 	public void CreateNewShot() {
 		shotStart = Camera.main.ScreenToWorldPoint(Input.mousePosition + 10 * Vector3.forward);
-		shot = Instantiate(shotLinePrefab, shotStart, Quaternion.identity);
+		shot = Instantiate(shotLinePrefab, shotStart, Quaternion.identity, shotObjects);
 		shot.GetComponent<LineRenderer>().SetPosition(0, shotStart);
 	}
 
