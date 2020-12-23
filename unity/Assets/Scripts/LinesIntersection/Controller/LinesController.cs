@@ -51,7 +51,8 @@ public class LinesController : MonoBehaviour {
 		} else if (Input.GetMouseButtonUp(0) && shots.Count < maxShots) {
 			AddNewShot();
 			if (CheckSolution()) {
-				GenerateNewLevel(maxWalls + 5);
+				maxWalls += 5;
+				GenerateNewLevel(maxWalls);
             }
         } else if (Input.GetMouseButtonDown(1)) {
 			RemoveShot(Camera.main.ScreenToWorldPoint(Input.mousePosition + 10 * Vector3.forward));
