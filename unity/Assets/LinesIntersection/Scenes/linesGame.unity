@@ -157,10 +157,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe71f3edf6c225a47bf266bf539060cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wallPrefab: {fileID: 1714958623488058, guid: 80d116a0654851649806ef934ae34ca2, type: 2}
+  wallPrefab: {fileID: 1298396431061686, guid: 68fdf39a3da72f749a5694805d176ef0, type: 2}
   shotLinePrefab: {fileID: 1886205189052948, guid: 07239c4aa8200c14b887c5c572773c7b,
     type: 2}
   shotObjects: {fileID: 2074432952}
+  wallObjects: {fileID: 642996244}
+  maxWalls: 10
 --- !u!1 &642996243
 GameObject:
   m_ObjectHideFlags: 0
@@ -170,7 +172,7 @@ GameObject:
   m_Component:
   - component: {fileID: 642996244}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Walls
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
