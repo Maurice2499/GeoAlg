@@ -156,9 +156,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wallPrefab: {fileID: 1714958623488058, guid: 80d116a0654851649806ef934ae34ca2, type: 2}
-  cannonPrefab: {fileID: 1238909634858624, guid: 6c6aec1e3c2429744a585e024bff00ba,
-    type: 2}
-  hintLinePrefab: {fileID: 1999060060125168, guid: 1ba380e81821844479c824169bcdb59f,
+  shotLinePrefab: {fileID: 1886205189052948, guid: 07239c4aa8200c14b887c5c572773c7b,
     type: 2}
 --- !u!1 &1114062371
 GameObject:
