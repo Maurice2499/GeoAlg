@@ -5,13 +5,11 @@ using UnityEngine;
 public class LinesController : MonoBehaviour {
 
 	[SerializeField] private GameObject wallPrefab;
-	[SerializeField] private GameObject cannonPrefab;
-	[SerializeField] private GameObject hintLinePrefab;
+	[SerializeField] private GameObject shotLinePrefab;
 
 	private Vector3 shotStart;
 	private Vector3 shotEnd;
 	private GameObject shot;
-	private GameObject cannon;
 
 	// Use this for initialization
 	void Start () {
@@ -22,14 +20,14 @@ public class LinesController : MonoBehaviour {
 	void Update () {
 		if (Input.GetMouseButtonDown(0)) {
 			shotStart = Camera.main.ScreenToWorldPoint(Input.mousePosition + 10 * Vector3.forward);
-			cannon = Instantiate(cannonPrefab, shotStart, Quaternion.identity);
-			shot = Instantiate(hintLinePrefab);
+			shot = Instantiate(shotLinePrefab, shotStart, Quaternion.identity);
 			shot.GetComponent<LineRenderer>().SetPosition(0, shotStart);
 
         } else if (Input.GetMouseButton(0)) {
 			shotEnd = shotStart + (Camera.main.ScreenToWorldPoint(Input.mousePosition + 10 * Vector3.forward) - shotStart).normalized * 25;
 			shot.GetComponent<LineRenderer>().SetPosition(1, shotEnd);
-			cannon.transform.rotation = Quaternion.LookRotation(Vector3.forward, shotEnd - cannon.transform.position);
+			Transform cannon = shot.transform.Find("Cannon");
+			cannon.rotation = Quaternion.LookRotation(Vector3.forward, shotEnd - cannon.position);
 		} else if (Input.GetMouseButtonUp(0)) {
 
         }
