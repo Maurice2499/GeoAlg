@@ -98,7 +98,8 @@ public class LinesController : MonoBehaviour {
 			LineSegment newLine = new LineSegment(projectedPosition1, projectedPosition2);
 
 			// TODO: later use sweep line for intersection check?
-			bool valid = Vector2.Distance(newLine.Point1, newLine.Point2) >= 1;
+			float wallLength = Vector2.Distance(newLine.Point1, newLine.Point2);
+			bool valid = wallLength >= 1;
 			foreach (LineObject wall in walls) {
 				if (newLine.Intersect(wall.line) != null || newLine.DistanceToPoint(wall.line.Point1) < 1 || newLine.DistanceToPoint(wall.line.Point2) < 1) {
 					valid = false;
