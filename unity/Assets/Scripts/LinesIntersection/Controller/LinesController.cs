@@ -26,7 +26,7 @@ public class LinesController : MonoBehaviour {
 			shot.GetComponent<LineRenderer>().SetPosition(0, shotStart);
 
         } else if (Input.GetMouseButton(0)) {
-			shotEnd = Camera.main.ScreenToWorldPoint(Input.mousePosition + 10 * Vector3.forward);
+			shotEnd = shotStart + (Camera.main.ScreenToWorldPoint(Input.mousePosition + 10 * Vector3.forward) - shotStart).normalized * 25;
 			shot.GetComponent<LineRenderer>().SetPosition(1, shotEnd);
 			cannon.transform.rotation = Quaternion.LookRotation(Vector3.forward, shotEnd - cannon.transform.position);
 		} else if (Input.GetMouseButtonUp(0)) {
