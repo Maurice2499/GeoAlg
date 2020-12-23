@@ -200,6 +200,10 @@ Prefab:
       propertyPath: m_Text
       value: Menu
       objectReference: {fileID: 0}
+    - target: {fileID: 11418384, guid: 1115d4335193dd643963c561dd1f1b1d, type: 2}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
+      value: mainMenu
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1115d4335193dd643963c561dd1f1b1d, type: 2}
   m_IsPrefabAsset: 0
@@ -692,6 +696,10 @@ Prefab:
       propertyPath: m_Text
       value: Explanation
       objectReference: {fileID: 0}
+    - target: {fileID: 11418384, guid: 1115d4335193dd643963c561dd1f1b1d, type: 2}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
+      value: linesExplanation
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1115d4335193dd643963c561dd1f1b1d, type: 2}
   m_IsPrefabAsset: 0
@@ -738,6 +746,18 @@ Prefab:
     - target: {fileID: 4311631778946924, guid: e4a53e5c836b69c46a68fbe332cff45e, type: 2}
       propertyPath: m_RootOrder
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4124619822673900, guid: e4a53e5c836b69c46a68fbe332cff45e, type: 2}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4124619822673900, guid: e4a53e5c836b69c46a68fbe332cff45e, type: 2}
+      propertyPath: m_LocalScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4124619822673900, guid: e4a53e5c836b69c46a68fbe332cff45e, type: 2}
+      propertyPath: m_LocalScale.z
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e4a53e5c836b69c46a68fbe332cff45e, type: 2}
@@ -828,6 +848,10 @@ Prefab:
     - target: {fileID: 11426352, guid: 1115d4335193dd643963c561dd1f1b1d, type: 2}
       propertyPath: m_Text
       value: Play game
+      objectReference: {fileID: 0}
+    - target: {fileID: 11418384, guid: 1115d4335193dd643963c561dd1f1b1d, type: 2}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
+      value: linesGame
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1115d4335193dd643963c561dd1f1b1d, type: 2}

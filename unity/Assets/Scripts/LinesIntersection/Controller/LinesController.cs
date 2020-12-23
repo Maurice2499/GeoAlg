@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Util.Geometry;
+using UnityEngine.EventSystems;
 
 public class LinesController : MonoBehaviour {
 
@@ -15,6 +16,7 @@ public class LinesController : MonoBehaviour {
 	[SerializeField] private Sprite castleDestroyedSprite;
 	[SerializeField] private Material wallMat;
 	[SerializeField] private Material wallDestroyedMat;
+	[SerializeField] private GameObject advanceButton;
 
 	private int maxShots = 5;
 
@@ -25,10 +27,10 @@ public class LinesController : MonoBehaviour {
 
     private List<LineObject> walls = new List<LineObject>();
 
-	float MIN_WIDTH = Screen.width * 0.1f;
-	float MAX_WIDTH = Screen.width * 0.9f;
-	float MIN_HEIGHT = Screen.height * 0.1f;
-	float MAX_HEIGHT = Screen.height * 0.9f;
+	float minWidth;
+	float maxWidth;
+	float minHeight;
+	float maxHeight;
 
 	struct LineObject {
 		public LineSegment line;
@@ -44,11 +46,22 @@ public class LinesController : MonoBehaviour {
     void Start() {
 		Debug.LogWarning("Warning: maxShots is not changed based on GenerateNewLevel()!");
 		Debug.LogWarning("Warning: intersections are brute-forced!");
+
+		minWidth = Screen.width * 0.1f;
+		maxWidth = Screen.width * 0.9f;
+		minHeight = Screen.height * 0.1f;
+		maxHeight = Screen.height * 0.9f;
+
 		GenerateNewLevel(maxWalls);
 	}
 
     // Update is called once per frame
     void Update () {
+		// Block from playing if we have won
+		if (advanceButton.activeSelf) {
+			return;
+        }
+
 		if (Input.GetMouseButtonDown(0) && shots.Count < maxShots) {
 			CreateNewShot();
 		} else if (Input.GetMouseButton(0) && shots.Count < maxShots) {
@@ -56,14 +69,14 @@ public class LinesController : MonoBehaviour {
 		} else if (Input.GetMouseButtonUp(0) && shots.Count < maxShots) {
 			AddNewShot();
 			if (CheckSolution()) {
-				maxWalls += 5;
 				SetWallsDestroyed(true);
-            }
+				advanceButton.SetActive(true);
+			}
         } else if (Input.GetMouseButtonDown(1)) {
 			RemoveShot(Camera.main.ScreenToWorldPoint(Input.mousePosition + 10 * Vector3.forward));
         }
 		if (Input.GetKeyDown(KeyCode.Space)) {
-			GenerateNewLevel(maxWalls);
+			NextLevel();
         }
 	}
 
@@ -90,6 +103,12 @@ public class LinesController : MonoBehaviour {
 		shot = null;
     }
 
+	public void NextLevel() {
+		advanceButton.SetActive(false);
+		maxWalls += 5;
+		GenerateNewLevel(maxWalls);
+	}
+
 	public void GenerateNewLevel(int maxWalls) {
 		foreach (LineObject shot in shots) {
 			Destroy(shot.obj);
@@ -101,8 +120,8 @@ public class LinesController : MonoBehaviour {
 		walls = new List<LineObject>();
 
 		for (int i = 0; i < maxWalls; i++) {
-			Vector3 screenPosition1 = Camera.main.ScreenToWorldPoint(new Vector3(Random.Range(MIN_WIDTH, MAX_WIDTH), Random.Range(MIN_HEIGHT, MAX_HEIGHT), 0));
-			Vector3 screenPosition2 = Camera.main.ScreenToWorldPoint(new Vector3(Random.Range(MIN_WIDTH, MAX_WIDTH), Random.Range(MIN_HEIGHT, MAX_HEIGHT), 0));
+			Vector3 screenPosition1 = Camera.main.ScreenToWorldPoint(new Vector3(Random.Range(minWidth, maxWidth), Random.Range(minHeight, maxHeight), 0));
+			Vector3 screenPosition2 = Camera.main.ScreenToWorldPoint(new Vector3(Random.Range(minWidth, maxWidth), Random.Range(minHeight, maxHeight), 0));
 			screenPosition1.z = 0;
 			screenPosition2.z = 0;
 			Vector2 projectedPosition1 = new Vector2(screenPosition1.x, screenPosition1.y);
