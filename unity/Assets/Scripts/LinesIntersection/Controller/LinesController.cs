@@ -31,28 +31,32 @@ namespace CastleCrushers {
 
 		[SerializeField] private GameObject advanceButton;
 
+		[SerializeField] private bool endless;
+
 		private int maxShots = 5;
 
 		public List<LineObject> shots = new List<LineObject>();
 
 		private List<LineObject> walls = new List<LineObject>();
 
-		private float minWidth;
-		private float maxWidth;
-		private float minHeight;
-		private float maxHeight;
+		private const float MIN_WIDTH = -7.8f;
+		private const float MAX_WIDTH = 7.8f;
+		private const float MIN_HEIGHT = -3.5f;
+		private const float MAX_HEIGHT = 3.5f;
+
+		private const int ENDLESS_START = 10;
+		private const int ENDLESS_INCREASE = 5;
 
 		// Use this for initialization
 		void Start() {
 			Debug.LogWarning("Warning: maxShots is not changed based on GenerateNewLevel()!");
 			Debug.LogWarning("Warning: intersections are brute-forced!");
 
-			minWidth = Screen.width * 0.1f;
-			maxWidth = Screen.width * 0.9f;
-			minHeight = Screen.height * 0.15f;
-			maxHeight = Screen.height * 0.9f;
-
-			LoadLevel(0);
+			if (endless) {
+				GenerateNewLevel(ENDLESS_START);
+            } else {
+				LoadLevel(0);
+			}
 		}
 
 		public bool CanAddShot() {
@@ -74,9 +78,15 @@ namespace CastleCrushers {
 		public void NextLevel() {
 			advanceButton.SetActive(false);
 			level++;
-			if (level >= levels.Count) {
+
+			if (endless) {
+				// endless mode
+				GenerateNewLevel(ENDLESS_START + 5 * ENDLESS_INCREASE);
+            } else if (level >= levels.Count) {
+				// not endless mode and all levels completed
 				UnityEngine.SceneManagement.SceneManager.LoadScene("linesVictory");
-            } else {
+			} else {
+				// not endless mode and not all levels completed
 				LoadLevel(level);
 			}
 		}
@@ -112,18 +122,15 @@ namespace CastleCrushers {
 			ClearLevel();
 
 			for (int i = 0; i < maxWalls; i++) {
-				Vector3 screenPosition1 = Camera.main.ScreenToWorldPoint(new Vector3(Random.Range(minWidth, maxWidth), Random.Range(minHeight, maxHeight), 0));
-				Vector3 screenPosition2 = Camera.main.ScreenToWorldPoint(new Vector3(Random.Range(minWidth, maxWidth), Random.Range(minHeight, maxHeight), 0));
-				screenPosition1.z = 0;
-				screenPosition2.z = 0;
-				Vector2 projectedPosition1 = new Vector2(screenPosition1.x, screenPosition1.y);
-				Vector2 projectedPosition2 = new Vector2(screenPosition2.x, screenPosition2.y);
+				Vector2 position1 = new Vector3(Random.Range(MIN_WIDTH, MAX_WIDTH), Random.Range(MIN_HEIGHT, MAX_HEIGHT));
+				Vector2 position2 = new Vector3(Random.Range(MIN_WIDTH, MAX_WIDTH), Random.Range(MIN_HEIGHT, MAX_HEIGHT));
 
-				LineSegment newLine = new LineSegment(projectedPosition1, projectedPosition2);
+				LineSegment newLine = new LineSegment(position1, position2);
 
 				// TODO: later use sweep line for intersection check?
 				float wallLength = Vector2.Distance(newLine.Point1, newLine.Point2);
 				bool valid = wallLength >= 1;
+
 				foreach (LineObject wall in walls) {
 					if (newLine.Intersect(wall.line) != null || newLine.DistanceToPoint(wall.line.Point1) < 1 || newLine.DistanceToPoint(wall.line.Point2) < 1) {
 						valid = false;
@@ -133,10 +140,10 @@ namespace CastleCrushers {
 
 				if (valid) {
 					GameObject newWall = Instantiate(wallPrefab, wallObjects);
-					newWall.transform.Find("StartCastle").position = screenPosition1;
-					newWall.transform.Find("EndCastle").position = screenPosition2;
-					newWall.GetComponent<LineRenderer>().SetPosition(0, screenPosition1);
-					newWall.GetComponent<LineRenderer>().SetPosition(1, screenPosition2);
+					newWall.transform.Find("StartCastle").position = position1;
+					newWall.transform.Find("EndCastle").position = position2;
+					newWall.GetComponent<LineRenderer>().SetPosition(0, position1);
+					newWall.GetComponent<LineRenderer>().SetPosition(1, position2);
 
 					walls.Add(new LineObject(newLine, newWall));
 				}
