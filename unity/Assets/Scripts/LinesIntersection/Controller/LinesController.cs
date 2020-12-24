@@ -46,6 +46,7 @@ namespace CastleCrushers {
 
 		private const int ENDLESS_START = 10;
 		private const int ENDLESS_INCREASE = 5;
+		private const int ENDLESS_MAX = 200;
 
 		// Use this for initialization
 		void Start() {
@@ -81,7 +82,7 @@ namespace CastleCrushers {
 
 			if (endless) {
 				// endless mode
-				GenerateNewLevel(ENDLESS_START + 5 * ENDLESS_INCREASE);
+				GenerateNewLevel(Mathf.Min(ENDLESS_START + level * ENDLESS_INCREASE, ENDLESS_MAX));
             } else if (level >= levels.Count) {
 				// not endless mode and all levels completed
 				UnityEngine.SceneManagement.SceneManager.LoadScene("linesVictory");
@@ -119,6 +120,7 @@ namespace CastleCrushers {
 		}
 
 		public void GenerateNewLevel(int maxWalls) {
+			Debug.Log(maxWalls);
 			ClearLevel();
 
 			for (int i = 0; i < maxWalls; i++) {
