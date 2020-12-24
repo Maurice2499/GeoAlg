@@ -17,6 +17,9 @@ namespace CastleCrushers {
 
 	public class LinesController : MonoBehaviour {
 
+		[SerializeField] private List<LinesLevel> levels;
+		private int level = 0;
+
 		[SerializeField] private GameObject wallPrefab;
 		[SerializeField] private Transform wallObjects;
 		[SerializeField] private int maxWalls;
@@ -49,7 +52,7 @@ namespace CastleCrushers {
 			minHeight = Screen.height * 0.15f;
 			maxHeight = Screen.height * 0.9f;
 
-			GenerateNewLevel(maxWalls);
+			LoadLevel(0);
 		}
 
 		public bool CanAddShot() {
@@ -69,12 +72,16 @@ namespace CastleCrushers {
 		}
 
 		public void NextLevel() {
-			maxWalls += 5;
-			GenerateNewLevel(maxWalls);
 			advanceButton.SetActive(false);
+			level++;
+			if (level >= levels.Count) {
+				UnityEngine.SceneManagement.SceneManager.LoadScene("linesVictory");
+            } else {
+				LoadLevel(level);
+			}
 		}
 
-		public void GenerateNewLevel(int maxWalls) {
+		private void ClearLevel() {
 			foreach (LineObject shot in shots) {
 				Destroy(shot.obj);
 			}
@@ -83,6 +90,26 @@ namespace CastleCrushers {
 				Destroy(wall.obj);
 			}
 			walls = new List<LineObject>();
+		}
+
+		private void LoadLevel(int id) {
+			ClearLevel();
+
+			LinesLevel level = levels[id];
+			maxShots = level.maxShots;
+			for (int i = 0; i < level.startPoints.Count; i++) {
+				GameObject newWall = Instantiate(wallPrefab, wallObjects);
+				newWall.transform.Find("StartCastle").position = level.startPoints[i];
+				newWall.transform.Find("EndCastle").position = level.endPoints[i];
+				newWall.GetComponent<LineRenderer>().SetPosition(0, level.startPoints[i]);
+				newWall.GetComponent<LineRenderer>().SetPosition(1, level.endPoints[i]);
+
+				walls.Add(new LineObject(new LineSegment(level.startPoints[i], level.endPoints[i]), newWall));
+            }
+		}
+
+		public void GenerateNewLevel(int maxWalls) {
+			ClearLevel();
 
 			for (int i = 0; i < maxWalls; i++) {
 				Vector3 screenPosition1 = Camera.main.ScreenToWorldPoint(new Vector3(Random.Range(minWidth, maxWidth), Random.Range(minHeight, maxHeight), 0));

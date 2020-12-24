@@ -1,6 +1,7 @@
 ﻿using ArtGallery;
 using Divide;
 using KingsTaxes;
+using CastleCrushers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -50,6 +51,10 @@ public class LoadLevelEditor : ScriptedImporter
         else if (name.StartsWith("hullLevel"))
         {
             obj = LoadHullLevel(fileSelected, name);
+        }
+        else if (name.StartsWith("ccLevel"))
+        {
+            obj = LoadCastleCrushersLevel(fileSelected, name);
         }
         else
         {
@@ -322,6 +327,87 @@ public class LoadLevelEditor : ScriptedImporter
 
         return asset;
     }
+
+    public UnityEngine.Object LoadCastleCrushersLevel(XElement fileSelected, string name) {
+        // create the output scriptable object
+        var asset = ScriptableObject.CreateInstance<LinesLevel>();
+        var points = new List<Vector2>();
+
+        // retrieve page data from .ipe file
+        var items = fileSelected.Descendants("page").First().Descendants("path").ToList();
+
+        foreach (var line in items) {
+            List<float> transformation = null;
+            if (line.Attribute("matrix") != null) {
+                transformation = line.Attribute("matrix").Value
+                    .Split(' ')
+                    .Select(s => float.Parse(s))
+                    .ToList();
+            }
+
+            foreach (var coordString in line.Value.Split('\n')) {
+                var coords = coordString.Split(' ').ToList();
+
+                if (coords.Count < 2) continue;
+
+                var x = float.Parse(coords[0]);
+                var y = float.Parse(coords[1]);
+
+                if (!MathUtil.IsFinite(x) || !MathUtil.IsFinite(y)) continue;
+
+                if (transformation != null) {
+                    // apply transformation matrix (could be made into library function)
+                    x = transformation[0] * x + transformation[2] * y + transformation[4];
+                    y = transformation[1] * x + transformation[3] * y + transformation[5];
+                }
+
+                points.Add(new Vector2(x, y));
+            }
+        }
+
+
+        // normalize coordinates
+        var rect = BoundingBoxComputer.FromPoints(points);
+        if (rect.width <= rect.height) {
+            points = Normalize(rect, 7f, points);
+        } else {
+            points = Normalize(rect, 15.8f, points);
+            rect = BoundingBoxComputer.FromPoints(points);
+            if (rect.height > 7f) {
+                points = Normalize(rect, 7f * rect.width / rect.height, points);
+            }
+        }
+
+
+        //for (int i = 0; i < points.Count; i++) {
+        //    points[i] = new Vector2(((points[i].x - rect.xMin) / rect.width - 0.5f) * 15.84f,
+        //                            ((points[i].y - rect.yMin) / rect.height - 0.5f) * 10 * 0.75f + 0.75f);
+        //}
+
+        var first = new List<Vector2>();
+        var second = new List<Vector2>();
+        for (int i = 0; i < points.Count; ) {
+            first.Add(points[i++]);
+            second.Add(points[i++]);
+        }
+
+        asset.startPoints = first;
+        asset.endPoints = second;
+
+        // get level arguments
+        var args = name.Split('_').ToList();
+        if (args.Count > 2) {
+            EditorUtility.DisplayDialog("Error", "Too many level arguments given in path name", "OK");
+            return asset;
+        } else if (args.Count == 2) {
+            asset.maxShots = int.Parse(args[1]);
+        }
+
+        Debug.Log(args[0] + ": " + asset.endPoints.Count + " walls and " + asset.maxShots + " shots");
+
+        return asset;
+    }
+
 
     /// <summary>
     /// Retrieve a vector list for all markers elements with given name

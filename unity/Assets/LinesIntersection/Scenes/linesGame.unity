@@ -157,6 +157,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe71f3edf6c225a47bf266bf539060cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  levels:
+  - {fileID: 11400000, guid: 7b0d23fb282cdff479134a961f1cfaa7, type: 3}
+  - {fileID: 11400000, guid: 5c119f15036190c4ebffa830a16d7a41, type: 3}
   wallPrefab: {fileID: 1298396431061686, guid: 68fdf39a3da72f749a5694805d176ef0, type: 2}
   wallObjects: {fileID: 642996244}
   maxWalls: 10
@@ -543,11 +546,11 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 22409496, guid: 1115d4335193dd643963c561dd1f1b1d, type: 2}
       propertyPath: m_AnchoredPosition.x
-      value: -400
+      value: -430
       objectReference: {fileID: 0}
     - target: {fileID: 22409496, guid: 1115d4335193dd643963c561dd1f1b1d, type: 2}
       propertyPath: m_AnchoredPosition.y
-      value: -244
+      value: -270
       objectReference: {fileID: 0}
     - target: {fileID: 22409496, guid: 1115d4335193dd643963c561dd1f1b1d, type: 2}
       propertyPath: m_SizeDelta.x
@@ -658,11 +661,11 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 22409496, guid: 1115d4335193dd643963c561dd1f1b1d, type: 2}
       propertyPath: m_AnchoredPosition.x
-      value: 400
+      value: 430
       objectReference: {fileID: 0}
     - target: {fileID: 22409496, guid: 1115d4335193dd643963c561dd1f1b1d, type: 2}
       propertyPath: m_AnchoredPosition.y
-      value: -244
+      value: -270
       objectReference: {fileID: 0}
     - target: {fileID: 22409496, guid: 1115d4335193dd643963c561dd1f1b1d, type: 2}
       propertyPath: m_SizeDelta.x

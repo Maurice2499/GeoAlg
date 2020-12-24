@@ -1,14 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Util.Geometry;
 
 namespace CastleCrushers {
-	public class LinesLevel : MonoBehaviour {
+
+	[CreateAssetMenu(fileName = "ccLevelNew", menuName = "Levels/Castle Crushers Level")]
+	public class LinesLevel : ScriptableObject {
 
 		[Header("Level parameters")]
-		public int maxCannons = 0;
+		public int maxShots = 0;
 
-		[Header("Configuration")]
-		public List<LineObject> walls = new List<LineObject>();
+		[Header("Walls")]
+		public List<Vector2> startPoints = new List<Vector2>();
+		public List<Vector2> endPoints = new List<Vector2>();
 	}
 }
