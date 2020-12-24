@@ -120,7 +120,6 @@ namespace CastleCrushers {
 		}
 
 		public void GenerateNewLevel(int maxWalls) {
-			Debug.Log(maxWalls);
 			ClearLevel();
 
 			for (int i = 0; i < maxWalls; i++) {
