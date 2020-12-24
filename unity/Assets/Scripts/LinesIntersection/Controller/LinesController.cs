@@ -34,10 +34,10 @@ namespace CastleCrushers {
 
 		private List<LineObject> walls = new List<LineObject>();
 
-		float minWidth;
-		float maxWidth;
-		float minHeight;
-		float maxHeight;
+		private float minWidth;
+		private float maxWidth;
+		private float minHeight;
+		private float maxHeight;
 
 		// Use this for initialization
 		void Start() {
