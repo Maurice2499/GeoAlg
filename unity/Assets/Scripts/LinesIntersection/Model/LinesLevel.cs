@@ -2,15 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LinesLevel : MonoBehaviour {
+namespace CastleCrushers {
+	public class LinesLevel : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
+		[Header("Level parameters")]
+		public int maxCannons = 0;
+
+		[Header("Configuration")]
+		public List<LineObject> walls = new List<LineObject>();
 	}
 }
