@@ -24,7 +24,7 @@ namespace CastleCrushers {
 				CreateNewShot();
 			} else if (Input.GetMouseButton(0) && controller.CanAddShot()) {
 				UpdateNewShotEndpoint();
-			} else if (Input.GetMouseButtonUp(0) && controller.CanAddShot()) {
+			} else if (Input.GetMouseButtonUp(0) && controller.CanAddShot() && shot != null) {
 				if (shotEnd.Equals(shotStart)) {
 					Destroy(shot);
 				} else {

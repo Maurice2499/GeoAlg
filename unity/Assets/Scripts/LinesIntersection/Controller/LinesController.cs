@@ -30,7 +30,7 @@ namespace CastleCrushers {
 
 		private int maxShots = 5;
 
-		private List<LineObject> shots = new List<LineObject>();
+		public List<LineObject> shots = new List<LineObject>();
 
 		private List<LineObject> walls = new List<LineObject>();
 
