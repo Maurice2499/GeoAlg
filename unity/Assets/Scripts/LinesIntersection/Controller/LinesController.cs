@@ -32,6 +32,8 @@ public class LinesController : MonoBehaviour {
 	float minHeight;
 	float maxHeight;
 
+	private bool advancePressed = false;
+
 	struct LineObject {
 		public LineSegment line;
 		public GameObject obj;
@@ -57,14 +59,19 @@ public class LinesController : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-		// Block from playing if we have won
-		if (advanceButton.activeSelf) {
+		// If we are ready to advance, start the next level
+		if (advancePressed) {
+			NextLevel();
+			advancePressed = false;
+			return;
+        } else if (advanceButton.activeSelf) {
+			// Do nothing when level is complete but advanced is not pressed
 			return;
         }
 
 		if (Input.GetMouseButtonDown(0) && shots.Count < maxShots) {
 			CreateNewShot();
-		} else if (Input.GetMouseButton(0) && shots.Count < maxShots) {
+		} else if (Input.GetMouseButton(0) && !Input.GetMouseButtonDown(0) && shots.Count < maxShots) {
 			UpdateNewShotEndpoint();
 		} else if (Input.GetMouseButtonUp(0) && shots.Count < maxShots) {
 			AddNewShot();
@@ -75,7 +82,7 @@ public class LinesController : MonoBehaviour {
         } else if (Input.GetMouseButtonDown(1)) {
 			RemoveShot(Camera.main.ScreenToWorldPoint(Input.mousePosition + 10 * Vector3.forward));
         }
-		if (Input.GetKeyDown(KeyCode.Space)) {
+		if (Input.GetKeyDown(KeyCode.Space) || advancePressed) {
 			NextLevel();
         }
 	}
@@ -101,6 +108,10 @@ public class LinesController : MonoBehaviour {
 			shots.Add(new LineObject(line, shot));
         }
 		shot = null;
+    }
+
+	public void Advance() {
+		advancePressed = true;
     }
 
 	public void NextLevel() {
