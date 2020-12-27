@@ -161,7 +161,8 @@ namespace CastleCrushers {
 				bool valid = wallLength >= 1;
 
 				foreach (LineObject wall in walls) {
-					if (newLine.Intersect(wall.line) != null || newLine.DistanceToPoint(wall.line.Point1) < 1 || newLine.DistanceToPoint(wall.line.Point2) < 1) {
+					if (newLine.Intersect(wall.line) != null || newLine.DistanceToPoint(wall.line.Point1) < 1 || newLine.DistanceToPoint(wall.line.Point2) < 1
+							|| wall.line.DistanceToPoint(newLine.Point1) < 1 || wall.line.DistanceToPoint(newLine.Point2) < 1) {
 						valid = false;
 						break;
 					}
