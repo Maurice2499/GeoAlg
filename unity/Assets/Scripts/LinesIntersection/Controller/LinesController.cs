@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Util.Geometry;
-using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace CastleCrushers {
 	public struct LineObject {
@@ -28,6 +28,7 @@ namespace CastleCrushers {
 		[SerializeField] private Sprite castleDestroyedSprite;
 		[SerializeField] private Material wallMat;
 		[SerializeField] private Material wallDestroyedMat;
+		[SerializeField] private Text remaining;
 
 		[SerializeField] private GameObject advanceButton;
 
@@ -58,6 +59,8 @@ namespace CastleCrushers {
             } else {
 				LoadLevel(0);
 			}
+
+			UpdateRemainingShots();
 		}
 
 		public bool CanAddShot() {
@@ -74,6 +77,29 @@ namespace CastleCrushers {
 				SetWallsDestroyed(true);
 				advanceButton.SetActive(true);
 			}
+
+			UpdateRemainingShots();
+		}
+
+		public void RemoveShot(Vector3 pos) {
+			if (shots.Count == 0) {
+				return;
+			}
+
+			float min = Vector3.Distance(shots[0].line.Point1, pos);
+			LineObject closest = shots[0];
+
+			for (int i = 1; i < shots.Count; i++) {
+				if (Vector3.Distance(shots[i].line.Point1, pos) < min) { // Alternatively, closest line: shots[i].line.DistanceToPoint(pos) < min
+					closest = shots[i];
+					min = shots[i].line.DistanceToPoint(pos);
+				}
+			}
+
+			shots.Remove(closest);
+			Destroy(closest.obj);
+
+			UpdateRemainingShots();
 		}
 
 		public void NextLevel() {
@@ -90,6 +116,8 @@ namespace CastleCrushers {
 				// not endless mode and not all levels completed
 				LoadLevel(level);
 			}
+
+			UpdateRemainingShots();
 		}
 
 		private void ClearLevel() {
@@ -151,25 +179,6 @@ namespace CastleCrushers {
 			}
 		}
 
-		public void RemoveShot(Vector3 pos) {
-			if (shots.Count == 0) {
-				return;
-			}
-
-			float min = Vector3.Distance(shots[0].line.Point1, pos);
-			LineObject closest = shots[0];
-
-			for (int i = 1; i < shots.Count; i++) {
-				if (Vector3.Distance(shots[i].line.Point1, pos) < min) { // Alternatively, closest line: shots[i].line.DistanceToPoint(pos) < min
-					closest = shots[i];
-					min = shots[i].line.DistanceToPoint(pos);
-				}
-			}
-
-			shots.Remove(closest);
-			Destroy(closest.obj);
-		}
-
 		private void SetWallsDestroyed(bool destroyed) {
 			Sprite sprite;
 			Material mat;
@@ -203,6 +212,10 @@ namespace CastleCrushers {
 				}
 			}
 			return true;
+		}
+
+		public void UpdateRemainingShots() {
+			remaining.text = "Shots: " + shots.Count + "/" + maxShots;
 		}
 	}
 }
