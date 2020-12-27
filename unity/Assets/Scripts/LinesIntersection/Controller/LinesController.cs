@@ -38,7 +38,7 @@ namespace CastleCrushers {
 
 		public List<LineObject> shots = new List<LineObject>();
 
-		private List<LineObject> walls = new List<LineObject>();
+		public List<LineObject> walls = new List<LineObject>();
 
 		private const float MIN_WIDTH = -7.8f;
 		private const float MAX_WIDTH = 7.8f;

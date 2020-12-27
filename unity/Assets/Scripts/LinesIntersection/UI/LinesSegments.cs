@@ -9,6 +9,10 @@ namespace CastleCrushers {
 		[SerializeField] private LinesController controller;
 
 		[SerializeField] private GameObject shotLinePrefab;
+		[SerializeField] private GameObject intPrefab;
+		[SerializeField] private Transform intObjs;
+
+		[SerializeField] private bool drawSkulls = false;
 
 		private Vector3 shotStart;
 		private Vector3 shotEnd;
@@ -40,6 +44,19 @@ namespace CastleCrushers {
 			}
 		}
 
+		void LateUpdate() {
+			List<Vector2> intersections = controller.IsLevelComplete() || !drawSkulls ? new List<Vector2>() : ComputeIntersections(controller.shots, controller.walls);
+			IncreaseIntersections(intersections.Count);
+
+			for (int i = 0; i < intersections.Count; i++) {
+				intObjs.GetChild(i).position = intersections[i];
+			}
+
+			for (int i = intersections.Count; i < intObjs.childCount; i++) {
+				intObjs.GetChild(i).position = new Vector3(-20, 0, 0);
+			}
+		}
+
 		public void CreateNewShot() {
 			shotStart = Camera.main.ScreenToWorldPoint(Input.mousePosition + 10 * Vector3.forward);
 			shot = Instantiate(shotLinePrefab, shotStart, Quaternion.identity, transform);
@@ -51,6 +68,27 @@ namespace CastleCrushers {
 			shot.GetComponent<LineRenderer>().SetPosition(1, shotEnd);
 			Transform cannon = shot.transform.Find("Cannon");
 			cannon.rotation = Quaternion.LookRotation(Vector3.forward, shotEnd - cannon.position);
+		}
+
+		private List<Vector2> ComputeIntersections(List<LineObject> shots, List<LineObject> walls) {
+			List<Vector2> result = new List<Vector2>();
+
+			if (shot != null) {
+				foreach (LineObject wall in walls) {
+					Vector2? intersection = wall.line.Intersect(new LineSegment(shotStart, shotEnd));
+					if (intersection != null) {
+						result.Add((Vector2)intersection);
+					}
+				}
+			}
+
+			return result;
+		}
+
+		private void IncreaseIntersections(int amount) {
+			for (int i = intObjs.childCount; i < amount; i++) {
+				Instantiate(intPrefab, intObjs);
+			}
 		}
 	}
 }
