@@ -77,7 +77,7 @@ namespace CastleCrushers {
 				SetWallsDestroyed(true);
 				advanceButton.SetActive(true);
 			}
-
+			UpdateWallDestroyed();
 			UpdateRemainingShots();
 		}
 
@@ -98,7 +98,7 @@ namespace CastleCrushers {
 
 			shots.Remove(closest);
 			Destroy(closest.obj);
-
+			UpdateWallDestroyed();
 			UpdateRemainingShots();
 		}
 
@@ -195,6 +195,27 @@ namespace CastleCrushers {
 				wall.obj.GetComponent<Renderer>().material = mat;
 				wall.obj.transform.Find("StartCastle").GetComponent<SpriteRenderer>().sprite = sprite;
 				wall.obj.transform.Find("EndCastle").GetComponent<SpriteRenderer>().sprite = sprite;
+			}
+		}
+
+		// Updates textures of walls according to whether they have been shot or not.
+		private void UpdateWallDestroyed() {
+			foreach (LineObject wall in walls)
+			{
+				bool hit = false;
+				foreach (LineObject shot in shots)
+				{
+					if (shot.line.Intersect(wall.line) != null)
+					{
+						hit = true;
+						break;
+					}
+				}
+				if (hit) {
+					wall.obj.GetComponent<Renderer>().material = wallDestroyedMat;
+				} else {
+					wall.obj.GetComponent<Renderer>().material = wallMat;
+				}
 			}
 		}
 
