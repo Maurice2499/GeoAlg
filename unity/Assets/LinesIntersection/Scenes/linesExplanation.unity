@@ -152,6 +152,22 @@ Prefab:
       propertyPath: m_RootOrder
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4124619822673900, guid: e4a53e5c836b69c46a68fbe332cff45e, type: 2}
+      propertyPath: m_LocalPosition.x
+      value: -0.34
+      objectReference: {fileID: 0}
+    - target: {fileID: 4124619822673900, guid: e4a53e5c836b69c46a68fbe332cff45e, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 0.14
+      objectReference: {fileID: 0}
+    - target: {fileID: 4124619822673900, guid: e4a53e5c836b69c46a68fbe332cff45e, type: 2}
+      propertyPath: m_LocalScale.x
+      value: 1.864558
+      objectReference: {fileID: 0}
+    - target: {fileID: 4124619822673900, guid: e4a53e5c836b69c46a68fbe332cff45e, type: 2}
+      propertyPath: m_LocalScale.z
+      value: 1.3893354
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e4a53e5c836b69c46a68fbe332cff45e, type: 2}
   m_IsPrefabAsset: 0
@@ -236,13 +252,18 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 11497240, guid: 47375d1ad9de78947b5dddba6bf6a125, type: 2}
       propertyPath: m_Text
-      value: 'Welcom eminence,
+      value: 'Welcome eminence,
 
 
-        Lorem Ipsum
+        We must crush all the castle walls, so we can seige the enemy from all sides!
+        However, munition is so scarce, that there is less munition than the enemy
+        has walls. In order to overcome this, you must tactically place the artillery
+        in order to breach multiple walls with one shot.
 
 
-        Mannenlievende pater'
+        Positioning artillery is done by click-drag-release of the mouse. A click
+        adds the artillery position, then dragging changes its direction, until you
+        release the mouse.'
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 47375d1ad9de78947b5dddba6bf6a125, type: 2}
