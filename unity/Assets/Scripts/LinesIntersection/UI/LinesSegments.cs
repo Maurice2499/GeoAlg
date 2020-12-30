@@ -63,9 +63,7 @@ namespace CastleCrushers {
 			foreach (Wall wall in walls) {
 				Vector2? intersection = wall.line.Intersect(shot.line);
 				if (intersection != null) {
-                    Debug.LogWarning("Breaking wall!");
                     wall.Break();
-                    Debug.LogWarning(wall);
                 }
 			}
 		}

@@ -221,10 +221,8 @@ namespace CastleCrushers {
 		// Updates textures of walls according to whether they have been shot or not.
 		private void UpdateWallDestroyed()
         {
-            Debug.LogWarning("Update:");
             foreach (Wall wall in walls)
 			{
-                Debug.LogWarning(wall.intersected);
 				if (wall.intersected) {
 					wall.obj.GetComponent<Renderer>().material = wallDestroyedMat;
 				} else {
