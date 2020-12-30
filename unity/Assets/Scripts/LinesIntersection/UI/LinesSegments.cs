@@ -33,7 +33,9 @@ namespace CastleCrushers {
 					Destroy(shot);
 				} else {
 					LineSegment line = new LineSegment(shotStart, shotEnd);
-					controller.AddNewShot(new LineObject(line, shot));
+                    Shot newShot = new Shot(line, shot);
+                    BreakIntersectingWalls(newShot, controller.walls);
+                    controller.AddNewShot(newShot);
 				}
 				shot = null;
 			} else if (Input.GetMouseButtonDown(1)) {
@@ -41,19 +43,6 @@ namespace CastleCrushers {
 			}
 			if (Input.GetKeyDown(KeyCode.Space)) {
 				controller.NextLevel();
-			}
-		}
-
-		void LateUpdate() {
-			List<Vector2> intersections = controller.IsLevelComplete() || !drawSkulls ? new List<Vector2>() : ComputeIntersections(controller.shots, controller.walls);
-			IncreaseIntersections(intersections.Count);
-
-			for (int i = 0; i < intersections.Count; i++) {
-				intObjs.GetChild(i).position = intersections[i];
-			}
-
-			for (int i = intersections.Count; i < intObjs.childCount; i++) {
-				intObjs.GetChild(i).position = new Vector3(-20, 0, 0);
 			}
 		}
 
@@ -70,24 +59,14 @@ namespace CastleCrushers {
 			cannon.rotation = Quaternion.LookRotation(Vector3.forward, shotEnd - cannon.position);
 		}
 
-		private List<Vector2> ComputeIntersections(List<LineObject> shots, List<LineObject> walls) {
-			List<Vector2> result = new List<Vector2>();
-
-			if (shot != null) {
-				foreach (LineObject wall in walls) {
-					Vector2? intersection = wall.line.Intersect(new LineSegment(shotStart, shotEnd));
-					if (intersection != null) {
-						result.Add((Vector2)intersection);
-					}
-				}
-			}
-
-			return result;
-		}
-
-		private void IncreaseIntersections(int amount) {
-			for (int i = intObjs.childCount; i < amount; i++) {
-				Instantiate(intPrefab, intObjs);
+		private void BreakIntersectingWalls(Shot shot, List<Wall> walls) {
+			foreach (Wall wall in walls) {
+				Vector2? intersection = wall.line.Intersect(shot.line);
+				if (intersection != null) {
+                    Debug.LogWarning("Breaking wall!");
+                    wall.Break();
+                    Debug.LogWarning(wall);
+                }
 			}
 		}
 	}
