@@ -2,36 +2,130 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Util.Geometry;
+using Util.DataStructures.BST;
+using Util.DataStructures.Queue;
 using UnityEngine.UI;
+using System;
+using Util.Algorithms;
 
 namespace CastleCrushers {
-	public struct Shot {
+	public class LineObject {
 		public LineSegment line;
 		public GameObject obj;
 
-		public Shot(LineSegment line, GameObject obj) {
+		public LineObject(LineSegment line, GameObject obj) {
 			this.line = line;
 			this.obj = obj;
 		}
 	}
 
-    public class Wall
-        // Class because it is more mutable
+    public class Shot : LineObject
     {
-        public LineSegment line;
-        public GameObject obj;
-        public bool intersected;
+        public Shot(LineSegment line, GameObject obj) : base(line, obj) { }
+    }
 
-        public Wall(LineSegment line, GameObject obj)
+    public class Wall : LineObject
+    {
+        public bool broken;
+
+        public Wall(LineSegment line, GameObject obj):  base(line, obj)
         {
-            this.line = line;
-            this.obj = obj;
-            this.intersected = false;
+            broken = false;
         }
 
         public void Break()
         {
-            this.intersected = true;
+            this.broken = true;
+        }
+    }
+
+    public struct Intersection
+    {
+        public LineObject one;
+        public LineObject two;
+
+        public Intersection(LineObject one, LineObject two)
+        {
+            this.one = one;
+            this.two = two;
+        }
+    }
+
+    public class SweepEvent : ISweepEvent<StatusItem>, IComparable<SweepEvent>, IEquatable<SweepEvent>
+    {
+        public SweepEvent(bool isStart)
+        {
+            IsStart = isStart;
+        }
+
+        public Vector2 Pos
+        {
+            get
+            {
+                if (this.IsStart)
+                {
+                    return this.StatusItem.LineObject.line.Point1.y > this.StatusItem.LineObject.line.Point2.y ? this.StatusItem.LineObject.line.Point1 : this.StatusItem.LineObject.line.Point2;
+                }
+                else
+                {
+                    return this.StatusItem.LineObject.line.Point1.y < this.StatusItem.LineObject.line.Point2.y ? this.StatusItem.LineObject.line.Point1 : this.StatusItem.LineObject.line.Point2;
+                }
+            }
+        }
+
+        public StatusItem StatusItem { get; set; }
+
+        public bool IsStart { get; set; }
+
+        public bool IsEnd
+        {
+            get { return !this.IsStart; }
+        }
+
+        public int CompareTo(SweepEvent other)
+        {
+            // This method is different to the static CompareTo because we require this equality checks, whereas
+            // the other method does not.
+            if (this == other)
+            {
+                return 0;
+            }
+
+            return CompareTo(this, other);
+        }
+
+        public static int CompareTo(SweepEvent e1, SweepEvent e2)
+        {
+            return e1.Pos.y > e2.Pos.y ? 1 : -1;
+        }
+
+        public bool Equals(SweepEvent other)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class StatusItem : IComparable<StatusItem>, IEquatable<StatusItem>
+    {
+        internal SweepEvent SweepEvent { get; private set; }
+
+        internal LineObject LineObject { get; private set; }
+
+        internal StatusItem(SweepEvent sweepEvent, LineObject lineObject)
+        {
+            SweepEvent = sweepEvent;
+            LineObject = lineObject;
+        }
+
+        public int CompareTo(StatusItem other)
+        {
+            // TODO
+            throw new NotImplementedException();
+        }
+
+        public bool Equals(StatusItem other)
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -167,12 +261,27 @@ namespace CastleCrushers {
             }
 		}
 
+
+        public List<Intersection> PlaneSweep(List<LineObject> lines)
+        {
+            List<Intersection> intersections = new List<Intersection>();
+
+            List<SweepEvent> events = new List<SweepEvent>();
+            //foreach (LineObject line in lines)
+            //{
+            //    events.Add(new SweepEvent(line, true));
+            //    events.Add(new SweepEvent(line, false));
+            //}
+            
+            return intersections;
+        }
+
 		public void GenerateNewLevel(int maxWalls) {
 			ClearLevel();
 
 			for (int i = 0; i < maxWalls; i++) {
-				Vector2 position1 = new Vector3(Random.Range(MIN_WIDTH, MAX_WIDTH), Random.Range(MIN_HEIGHT, MAX_HEIGHT));
-				Vector2 position2 = new Vector3(Random.Range(MIN_WIDTH, MAX_WIDTH), Random.Range(MIN_HEIGHT, MAX_HEIGHT));
+				Vector2 position1 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
+				Vector2 position2 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
 
 				LineSegment newLine = new LineSegment(position1, position2);
 
@@ -223,7 +332,7 @@ namespace CastleCrushers {
         {
             foreach (Wall wall in walls)
 			{
-				if (wall.intersected) {
+				if (wall.broken) {
 					wall.obj.GetComponent<Renderer>().material = wallDestroyedMat;
 				} else {
 					wall.obj.GetComponent<Renderer>().material = wallMat;
@@ -234,12 +343,12 @@ namespace CastleCrushers {
 		//To check the solution
 		public bool CheckSolution() {
 			foreach (Wall wall in walls) {
-				if (!wall.intersected) {
+				if (!wall.broken) {
 					return false;
 				}
 			}
 			return true;
-		}
+		}   
 
 		public void UpdateRemainingShots() {
 			remaining.text = "Shots: " + shots.Count + "/" + maxShots;
