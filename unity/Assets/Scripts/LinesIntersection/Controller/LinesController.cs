@@ -39,96 +39,6 @@ namespace CastleCrushers {
         }
     }
 
-    public struct Intersection
-    {
-        public LineObject one;
-        public LineObject two;
-
-        public Intersection(LineObject one, LineObject two)
-        {
-            this.one = one;
-            this.two = two;
-        }
-    }
-
-    public class SweepEvent : ISweepEvent<StatusItem>, IComparable<SweepEvent>, IEquatable<SweepEvent>
-    {
-        public SweepEvent(bool isStart)
-        {
-            IsStart = isStart;
-        }
-
-        public Vector2 Pos
-        {
-            get
-            {
-                if (this.IsStart)
-                {
-                    return this.StatusItem.LineObject.line.Point1.y > this.StatusItem.LineObject.line.Point2.y ? this.StatusItem.LineObject.line.Point1 : this.StatusItem.LineObject.line.Point2;
-                }
-                else
-                {
-                    return this.StatusItem.LineObject.line.Point1.y < this.StatusItem.LineObject.line.Point2.y ? this.StatusItem.LineObject.line.Point1 : this.StatusItem.LineObject.line.Point2;
-                }
-            }
-        }
-
-        public StatusItem StatusItem { get; set; }
-
-        public bool IsStart { get; set; }
-
-        public bool IsEnd
-        {
-            get { return !this.IsStart; }
-        }
-
-        public int CompareTo(SweepEvent other)
-        {
-            // This method is different to the static CompareTo because we require this equality checks, whereas
-            // the other method does not.
-            if (this == other)
-            {
-                return 0;
-            }
-
-            return CompareTo(this, other);
-        }
-
-        public static int CompareTo(SweepEvent e1, SweepEvent e2)
-        {
-            return e1.Pos.y > e2.Pos.y ? 1 : -1;
-        }
-
-        public bool Equals(SweepEvent other)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class StatusItem : IComparable<StatusItem>, IEquatable<StatusItem>
-    {
-        internal SweepEvent SweepEvent { get; private set; }
-
-        internal LineObject LineObject { get; private set; }
-
-        internal StatusItem(SweepEvent sweepEvent, LineObject lineObject)
-        {
-            SweepEvent = sweepEvent;
-            LineObject = lineObject;
-        }
-
-        public int CompareTo(StatusItem other)
-        {
-            // TODO
-            throw new NotImplementedException();
-        }
-
-        public bool Equals(StatusItem other)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
 	public class LinesController : MonoBehaviour {
 
 		[SerializeField] private List<LinesLevel> levels;
@@ -261,21 +171,6 @@ namespace CastleCrushers {
             }
 		}
 
-
-        public List<Intersection> PlaneSweep(List<LineObject> lines)
-        {
-            List<Intersection> intersections = new List<Intersection>();
-
-            List<SweepEvent> events = new List<SweepEvent>();
-            //foreach (LineObject line in lines)
-            //{
-            //    events.Add(new SweepEvent(line, true));
-            //    events.Add(new SweepEvent(line, false));
-            //}
-            
-            return intersections;
-        }
-
 		public void GenerateNewLevel(int maxWalls) {
 			ClearLevel();
 
@@ -285,7 +180,7 @@ namespace CastleCrushers {
 
 				LineSegment newLine = new LineSegment(position1, position2);
 
-				// TODO: later use sweep line for intersection check?
+				// TODO: later use sweep line for intersection check? SEE OTHER FILE : )
 				float wallLength = Vector2.Distance(newLine.Point1, newLine.Point2);
 				bool valid = wallLength >= 1;
 
