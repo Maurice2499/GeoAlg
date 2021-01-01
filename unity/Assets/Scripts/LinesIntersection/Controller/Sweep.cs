@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Util.Algorithms;
 using Util.DataStructures.BST;
+using Util.Geometry;
 
 namespace CastleCrushers
 {
@@ -122,8 +123,9 @@ namespace CastleCrushers
 
         public int CompareTo(StatusItem other)
         {
-            // TODO somehow compare intersections
-            throw new NotImplementedException();
+            // Missschien zo iets? dat je ze sorteert op X coordinaat op de hoogte van de sweepline?
+            // Ik weet alleen niet of de volgorde nu klopt, of dat ze juist precies andersom moeten (dus ? -1 : 1;)
+            return LineObject.line.X(SweepEvent.Pos.y) > other.LineObject.line.X(SweepEvent.Pos.y) ? 1 : -1;
         }
 
         public bool Equals(StatusItem other)
