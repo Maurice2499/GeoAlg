@@ -1,12 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Util.Geometry;
-using Util.DataStructures.BST;
-using Util.DataStructures.Queue;
 using UnityEngine.UI;
-using System;
-using Util.Algorithms;
+using CastleCrushers.Tests;
 
 namespace CastleCrushers {
 	public class LineObject {
@@ -183,6 +179,10 @@ namespace CastleCrushers {
 
 		public void GenerateNewLevel(int maxWalls) {
 			ClearLevel();
+
+            Debug.LogWarning("Running tests");
+            new SweepTest();
+            Debug.LogWarning("Tests completed");
 
 			for (int i = 0; i < maxWalls; i++) {
 				Vector2 position1 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));

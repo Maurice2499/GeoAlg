@@ -117,12 +117,9 @@ namespace CastleCrushers
     {
         internal LineObject LineObject { get; private set; }
 
-        internal Line SweepLine; // I think this is just a reference because Line is a class.
-
-        internal StatusItem(LineObject lineObject, Line sweepLine)
+        internal StatusItem(LineObject lineObject)
         {
             LineObject = lineObject;
-            SweepLine = sweepLine;
         }
 
         public int CompareTo(StatusItem other)
@@ -135,10 +132,16 @@ namespace CastleCrushers
             // - Eerst de oude deleten (dus die moet je kunnen vinden in de BST onder de oude ordering)
             // - Dan de nieuwe inserten (in de nieuwe ordering)
             // Dus misschien moeten we dan if (one.x == two.x) { hier de ordering af laten hangen van of we net boven of onder de sweepline kijken } 
-            Vector2 one = (Vector2)LineObject.line.Intersect(SweepLine);
-            Vector2 two = (Vector2)other.LineObject.line.Intersect(SweepLine);
+            Vector2 one = (Vector2)LineObject.line.Intersect(DownwardSweepLine.Line);
+            Vector2 two = (Vector2)other.LineObject.line.Intersect(DownwardSweepLine.Line);
             if (one.x == two.x) {
-                return 0;//LineObject.Lowest().x > other.LineObject.Lowest().x ? 1 : -1;
+                if (DownwardSweepLine.ComparePreEvent)
+                {
+                    return LineObject.Highest().x > other.LineObject.Highest().x ? 1 : -1;
+                } else
+                {
+                    return LineObject.Lowest().x > other.LineObject.Lowest().x ? 1 : -1;
+                }
             } else
             {
                 return one.x > two.x ? 1 : -1;
@@ -154,6 +157,8 @@ namespace CastleCrushers
 
     public class DownwardSweepLine : SweepLine<SweepEvent, StatusItem>
     {
+        public static bool ComparePreEvent { get; private set; }
+
         private List<LineObject> lines;
 
         private List<Intersection> intersections;
@@ -163,11 +168,14 @@ namespace CastleCrushers
             this.lines = lines;
         }
 
-        public void Run()
+        public List<Intersection> Run()
         {
+            this.intersections = new List<Intersection>();
             List<SweepEvent> events = CreateEvents();
             InitializeEvents(events);
             InitializeStatus(new List<StatusItem>());
+            VerticalSweep(HandleEvent);
+            return this.intersections;
         }
 
         private List<SweepEvent> CreateEvents()
@@ -176,7 +184,7 @@ namespace CastleCrushers
 
             foreach (LineObject line in lines)
             {
-                StatusItem statusItem = new StatusItem(line, Line);
+                StatusItem statusItem = new StatusItem(line);
                 SweepEvent enterEvent = new SweepEvent(EventType.INSERT);
                 enterEvent.StatusItem = statusItem;
                 SweepEvent exitEvent = new SweepEvent(EventType.DELETE);
@@ -225,10 +233,22 @@ namespace CastleCrushers
             }
             else if (ev.IsIntersection)
             {
-                this.intersections.Add(new Intersection(ev.StatusItem.LineObject, ev.IntersectingStatusItem.LineObject));
-
                 StatusItem left = ev.StatusItem;
                 StatusItem right = ev.IntersectingStatusItem;
+                this.intersections.Add(new Intersection(left.LineObject, right.LineObject));
+
+                // Remove
+                ComparePreEvent = true;
+                
+                status.Delete(left);
+                status.Delete(right);
+
+                // Swap
+                ComparePreEvent = false;
+
+                // Add
+                status.Insert(left);
+                status.Insert(right);
             }
         }
 
