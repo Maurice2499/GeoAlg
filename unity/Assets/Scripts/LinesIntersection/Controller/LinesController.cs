@@ -23,7 +23,12 @@ namespace CastleCrushers {
         {
             return this.line.Point1.y < this.line.Point2.y ? this.line.Point1 : this.line.Point2;
         }
-	}
+
+        public override string ToString()
+        {
+            return "LO cont " + line.ToString();
+        }
+    }
 
     public class Shot : LineObject
     {

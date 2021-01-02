@@ -100,11 +100,11 @@ namespace CastleCrushers
             {
                 if (e1.Pos.x == e2.Pos.x)
                 {
-                    throw new Exception(); // Duplicate events.. Three intersect eachother perhaps?
+                    return 0;
                 }
-                return e1.Pos.x > e2.Pos.x ? 1 : -1;
+                return e1.Pos.x > e2.Pos.x ? -1 : 1;
             }
-            return e1.Pos.y > e2.Pos.y ? 1 : -1;
+            return e1.Pos.y > e2.Pos.y ? -1 : 1;
         }
 
         public bool Equals(SweepEvent other)
@@ -124,6 +124,10 @@ namespace CastleCrushers
 
         public int CompareTo(StatusItem other)
         {
+            if (this == other)
+            {
+                return 0;
+            }
             // Missschien zo iets? dat je ze sorteert op X coordinaat op de hoogte van de sweepline?
             // Ik weet alleen niet of de volgorde nu klopt, of dat ze juist precies andersom moeten (dus ? -1 : 1;)
 
@@ -131,26 +135,33 @@ namespace CastleCrushers
             // How about this? Vgm gaat er alsnog iets fout omdat we de lines moeten swappen, want dan moet je dit doen:
             // - Eerst de oude deleten (dus die moet je kunnen vinden in de BST onder de oude ordering)
             // - Dan de nieuwe inserten (in de nieuwe ordering)
-            // Dus misschien moeten we dan if (one.x == two.x) { hier de ordering af laten hangen van of we net boven of onder de sweepline kijken } 
-            Vector2 one = (Vector2)LineObject.line.Intersect(DownwardSweepLine.Line);
-            Vector2 two = (Vector2)other.LineObject.line.Intersect(DownwardSweepLine.Line);
-            if (one.x == two.x) {
+            // Dus misschien moeten we dan if (x_one == x_two) { hier de ordering af laten hangen van of we net boven of onder de sweepline kijken } 
+            float x_one = LineObject.line.X(DownwardSweepLine.Line.Point1.y);
+            float x_two = other.LineObject.line.X(DownwardSweepLine.Line.Point1.y);
+            if (x_one == x_two)
+            {
+                Debug.LogWarning("Got here");
                 if (DownwardSweepLine.ComparePreEvent)
                 {
-                    return LineObject.Highest().x > other.LineObject.Highest().x ? 1 : -1;
+                    return -LineObject.Highest().x > other.LineObject.Highest().x ? 1 : -1;
                 } else
                 {
-                    return LineObject.Lowest().x > other.LineObject.Lowest().x ? 1 : -1;
+                    return -LineObject.Lowest().x > other.LineObject.Lowest().x ? 1 : -1;
                 }
             } else
             {
-                return one.x > two.x ? 1 : -1;
+                return -x_one > x_two ? 1 : -1;
             }
         }
 
         public bool Equals(StatusItem other)
         {
-            throw new NotImplementedException();
+            return this == other;
+        }
+        
+        public override String ToString()
+        {
+            return "SI cont " + LineObject.ToString();
         }
     }
 
@@ -166,6 +177,7 @@ namespace CastleCrushers
         public DownwardSweepLine(List<LineObject> lines)
         {
             this.lines = lines;
+            ComparePreEvent = false;
         }
 
         public List<Intersection> Run()
@@ -189,6 +201,9 @@ namespace CastleCrushers
                 enterEvent.StatusItem = statusItem;
                 SweepEvent exitEvent = new SweepEvent(EventType.DELETE);
                 exitEvent.StatusItem = statusItem;
+
+                events.Add(enterEvent);
+                events.Add(exitEvent);
             }
 
             return events;
@@ -198,6 +213,7 @@ namespace CastleCrushers
         {
             if (ev.IsStart)
             {
+                Debug.LogWarning("Added " + ev.StatusItem);
                 if (!status.Insert(ev.StatusItem)) // TODO: the comparer of StatusItem (which depends on the sweepline like what the fuck man 
                 {
                     throw new ArgumentException("Failed to insert into state");
@@ -217,14 +233,17 @@ namespace CastleCrushers
             }
             else if (ev.IsEnd)
             {
-
+                Debug.LogWarning("Removed " + ev.StatusItem);
                 StatusItem prev;
                 bool hasPrev = status.FindNextSmallest(ev.StatusItem, out prev);
 
                 StatusItem next;
                 bool hasNext = status.FindNextBiggest(ev.StatusItem, out next);
 
-                status.Delete(ev.StatusItem);
+                if (!status.Delete(ev.StatusItem))
+                {
+                    throw new Exception("Could not delete from status : (");
+                }
 
                 if (hasPrev && hasNext)
                 {
@@ -237,30 +256,65 @@ namespace CastleCrushers
                 StatusItem right = ev.IntersectingStatusItem;
                 this.intersections.Add(new Intersection(left.LineObject, right.LineObject));
 
+                Debug.LogWarning("Left: " + left + " Right: " + right);
+
                 // Remove
                 ComparePreEvent = true;
-                
                 status.Delete(left);
                 status.Delete(right);
 
                 // Swap
+                Debug.LogWarning("Swapping");
+                Debug.LogWarning(ComparePreEvent + " " + left.CompareTo(right));
                 ComparePreEvent = false;
+                Debug.LogWarning(ComparePreEvent + " " + left.CompareTo(right));
+                Debug.LogWarning("Done Swapping");
 
                 // Add
                 status.Insert(left);
                 status.Insert(right);
+
+                StatusItem a, b;
+                if (left.CompareTo(right) > 0)
+                {
+                    a = left;
+                    b = right;
+                } else
+                {
+                    b = left;
+                    a = right;
+                }
+
+                StatusItem prev;
+                if(status.FindNextSmallest(a, out prev))
+                {
+                    CheckIntersection(prev, a, events);
+                }
+
+                StatusItem next;
+                if(status.FindNextBiggest(b, out next))
+                {
+                    CheckIntersection(b, next, events);
+                }
             }
+
+            Debug.LogWarning("Status: " + status.ToString()); // Requires adding status.ToString, which I should not commit to git
         }
 
         private void CheckIntersection(StatusItem left, StatusItem right, IBST<SweepEvent> events)
         {
+            // TODO make sure we dont add duplicate intersection events :) 
+            //Debug.LogWarning("Checking intersection between: " + left + " and " + right);
             Vector2? intersect = left.LineObject.line.Intersect(right.LineObject.line);
             if (intersect != null)
             {
-                SweepEvent ev = new SweepEvent(EventType.INTERSECT);
-                ev.StatusItem = left;
-                ev.IntersectingStatusItem = right;
-                events.Insert(ev);
+                if (((Vector2)intersect).y < Line.Point1.y)
+                {
+                    SweepEvent ev = new SweepEvent(EventType.INTERSECT);
+                    ev.StatusItem = left;
+                    ev.IntersectingStatusItem = right;
+                    events.Insert(ev);
+                }
             }
         }
     }
