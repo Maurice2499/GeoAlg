@@ -39,15 +39,15 @@ namespace CastleCrushers
             {
                 if (this.IsStart)
                 {
-                    return this.LineObject.line.Point1.y > this.LineObject.line.Point2.y ? this.LineObject.line.Point1 : this.LineObject.line.Point2;
+                    return this.StatusItem.LineObject.Highest();
                 }
                 else if (this.IsEnd)
                 {
-                    return this.LineObject.line.Point1.y < this.LineObject.line.Point2.y ? this.LineObject.line.Point1 : this.LineObject.line.Point2;
+                    return this.StatusItem.LineObject.Lowest();
                 }
                 else //if (this.IsIntersection)
                 {
-                    return (Vector2)LineObject.line.Intersect(IntersectingLineObject.line);
+                    return (Vector2)StatusItem.LineObject.line.Intersect(IntersectingStatusItem.LineObject.line);
                 }
             }
         }
@@ -56,11 +56,7 @@ namespace CastleCrushers
 
         public StatusItem StatusItem { get; set; }
 
-        public SweepEvent OtherEvent { get; set; }
-
-        public LineObject LineObject { get; set; }
-
-        public LineObject IntersectingLineObject { get; set; }
+        public StatusItem IntersectingStatusItem { get; set; }
 
         public bool IsStart
         {
@@ -100,32 +96,53 @@ namespace CastleCrushers
 
         public static int CompareTo(SweepEvent e1, SweepEvent e2)
         {
+            if (e1.Pos.y == e2.Pos.y)
+            {
+                if (e1.Pos.x == e2.Pos.x)
+                {
+                    throw new Exception(); // Duplicate events.. Three intersect eachother perhaps?
+                }
+                return e1.Pos.x > e2.Pos.x ? 1 : -1;
+            }
             return e1.Pos.y > e2.Pos.y ? 1 : -1;
         }
 
         public bool Equals(SweepEvent other)
         {
-            throw new NotImplementedException();
+            return this == other ? true : false;
         }
     }
 
     public class StatusItem : IComparable<StatusItem>, IEquatable<StatusItem>
     {
-        internal SweepEvent SweepEvent { get; private set; }
-
         internal LineObject LineObject { get; private set; }
 
-        internal StatusItem(SweepEvent sweepEvent, LineObject lineObject)
+        internal Line SweepLine; // I think this is just a reference because Line is a class.
+
+        internal StatusItem(LineObject lineObject, Line sweepLine)
         {
-            SweepEvent = sweepEvent;
             LineObject = lineObject;
+            SweepLine = sweepLine;
         }
 
         public int CompareTo(StatusItem other)
         {
             // Missschien zo iets? dat je ze sorteert op X coordinaat op de hoogte van de sweepline?
             // Ik weet alleen niet of de volgorde nu klopt, of dat ze juist precies andersom moeten (dus ? -1 : 1;)
-            return LineObject.line.X(SweepEvent.Pos.y) > other.LineObject.line.X(SweepEvent.Pos.y) ? 1 : -1;
+
+            // Ik denk dat daar iets mis gaat omdat SweepEvent.pos niet klopt
+            // How about this? Vgm gaat er alsnog iets fout omdat we de lines moeten swappen, want dan moet je dit doen:
+            // - Eerst de oude deleten (dus die moet je kunnen vinden in de BST onder de oude ordering)
+            // - Dan de nieuwe inserten (in de nieuwe ordering)
+            // Dus misschien moeten we dan if (one.x == two.x) { hier de ordering af laten hangen van of we net boven of onder de sweepline kijken } 
+            Vector2 one = (Vector2)LineObject.line.Intersect(SweepLine);
+            Vector2 two = (Vector2)other.LineObject.line.Intersect(SweepLine);
+            if (one.x == two.x) {
+                return 0;//LineObject.Lowest().x > other.LineObject.Lowest().x ? 1 : -1;
+            } else
+            {
+                return one.x > two.x ? 1 : -1;
+            }
         }
 
         public bool Equals(StatusItem other)
@@ -159,11 +176,11 @@ namespace CastleCrushers
 
             foreach (LineObject line in lines)
             {
+                StatusItem statusItem = new StatusItem(line, Line);
                 SweepEvent enterEvent = new SweepEvent(EventType.INSERT);
-                enterEvent.LineObject = line;
+                enterEvent.StatusItem = statusItem;
                 SweepEvent exitEvent = new SweepEvent(EventType.DELETE);
-                exitEvent.LineObject = line;
-                exitEvent.OtherEvent = enterEvent;
+                exitEvent.StatusItem = statusItem;
             }
 
             return events;
@@ -173,7 +190,6 @@ namespace CastleCrushers
         {
             if (ev.IsStart)
             {
-                ev.StatusItem = new StatusItem(ev, ev.LineObject);
                 if (!status.Insert(ev.StatusItem)) // TODO: the comparer of StatusItem (which depends on the sweepline like what the fuck man 
                 {
                     throw new ArgumentException("Failed to insert into state");
@@ -209,9 +225,10 @@ namespace CastleCrushers
             }
             else if (ev.IsIntersection)
             {
-                this.intersections.Add(new Intersection(ev.LineObject, ev.IntersectingLineObject));
+                this.intersections.Add(new Intersection(ev.StatusItem.LineObject, ev.IntersectingStatusItem.LineObject));
 
-                // TODO: recompute status
+                StatusItem left = ev.StatusItem;
+                StatusItem right = ev.IntersectingStatusItem;
             }
         }
 
@@ -221,8 +238,8 @@ namespace CastleCrushers
             if (intersect != null)
             {
                 SweepEvent ev = new SweepEvent(EventType.INTERSECT);
-                ev.LineObject = left.LineObject;
-                ev.IntersectingLineObject = right.LineObject;
+                ev.StatusItem = left;
+                ev.IntersectingStatusItem = right;
                 events.Insert(ev);
             }
         }

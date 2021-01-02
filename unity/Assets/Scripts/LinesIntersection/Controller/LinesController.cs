@@ -17,6 +17,16 @@ namespace CastleCrushers {
 			this.line = line;
 			this.obj = obj;
 		}
+
+        public Vector2 Highest() // Assumes this line is not horizontal
+        {
+            return this.line.Point1.y > this.line.Point2.y ? this.line.Point1 : this.line.Point2;
+        }
+
+        public Vector2 Lowest() // Assumes this line is not horizontal
+        {
+            return this.line.Point1.y < this.line.Point2.y ? this.line.Point1 : this.line.Point2;
+        }
 	}
 
     public class Shot : LineObject
