@@ -15,6 +15,7 @@
             Test2();
             //Test3();
             Test4();
+            Test5();
         }
         
         public void Test1()
@@ -69,6 +70,42 @@
             };
             DownwardSweepLine sweep = new DownwardSweepLine(lines);
             Assert.AreEqual(sweep.Run().Count, 9);
+        }
+
+        public void Test5()
+        {
+            int maxWalls = 10;
+            float MIN_WIDTH = -7.8f;
+            float MAX_WIDTH = 7.8f;
+            float MIN_HEIGHT = -3.5f;
+            float MAX_HEIGHT = 3.5f;
+
+            // Run it 10 times because it is randomized. I dont expect to catch all bugs but at least this is better than only once
+            for (int N = 0; N < 10; N++)
+            {
+                // Generator code
+                List<LineObject> lines = new List<LineObject>();
+                for (int i = 0; i < maxWalls; i++)
+                {
+                    Vector2 position1 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
+                    Vector2 position2 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
+
+                    LineSegment newLine = new LineSegment(position1, position2);
+
+                    lines.Add(new LineObject(newLine, null));
+                }
+
+                DownwardSweepLine sweep = new DownwardSweepLine(lines);
+                List<Intersection> intersections = sweep.Run();
+                foreach (Intersection intersection in intersections)
+                {
+                    intersection.two.remove = true;
+                }
+                lines.RemoveAll(item => item.remove);
+
+                DownwardSweepLine sweep2 = new DownwardSweepLine(lines);
+                Assert.AreEqual(sweep2.Run().Count, 0);
+            }
         }
     }
 }

@@ -8,6 +8,7 @@ namespace CastleCrushers {
 	public class LineObject {
 		public LineSegment line;
 		public GameObject obj;
+        public bool remove = true;
 
 		public LineObject(LineSegment line, GameObject obj) {
 			this.line = line;
