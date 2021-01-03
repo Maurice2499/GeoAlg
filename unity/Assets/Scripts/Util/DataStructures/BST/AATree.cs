@@ -12,11 +12,6 @@
     public class AATree<T> : IBST<T>
         where T : IComparable<T>, IEquatable<T>
     {
-        public override string ToString()
-        {
-            return m_Root.ToString(3);
-        }
-
         // Sentinel.
         protected Node m_Bottom;
         protected Node m_Root;
@@ -716,15 +711,6 @@
                 Left = a_Left ?? this;
                 Right = a_Right ?? this;
                 Level = a_Level;
-            }
-
-            public string ToString(int depth)
-            {
-                if (depth == 0)
-                {
-                    return "-";
-                }
-                return "( " + Data + " :/: " + Left.ToString(depth - 1) + " , " + Right.ToString(depth - 1) + " )";
             }
         }
     }
