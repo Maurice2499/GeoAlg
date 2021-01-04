@@ -90,8 +90,7 @@ namespace Util.Algorithms
             {
                 if (!Events.Delete(ev))
                 {
-                    //throw new ArgumentException("Failed to delete event " + RuntimeHelpers.GetHashCode(ev) + " - " + ev);
-                    return;
+                    throw new ArgumentException("Failed to delete event " + RuntimeHelpers.GetHashCode(ev) + " - " + ev);
                 }
 
                 Line = new Line(ev.Pos, ev.Pos + new Vector2(1f, 0f));

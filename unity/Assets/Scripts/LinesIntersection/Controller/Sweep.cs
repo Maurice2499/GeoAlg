@@ -125,6 +125,11 @@ namespace CastleCrushers
             }
          
         }
+
+        public override String ToString()
+        {
+            return "SweepEvent (" + Pos.x+" , " + Pos.y + ") " + "Of type: " + this.EventType;
+        }
     }
 
     public class StatusItem : IComparable<StatusItem>, IEquatable<StatusItem>
@@ -145,19 +150,41 @@ namespace CastleCrushers
             // Less than 0 	    This instance precedes other in the sort order. 
             // Zero             This instance occurs in the same position in the sort order as other.
             // Greater than 0   This instance follows other in the sort order.
-            float x_one = LineObject.line.X(DownwardSweepLine.Line.Point1.y);
-            float x_two = other.LineObject.line.X(DownwardSweepLine.Line.Point1.y);
+            float x_one;
+            if (this.LineObject.line.IsVertical)
+            {
+                x_one = this.LineObject.line.Point1.x;
+            } else
+            {
+                x_one = this.LineObject.line.X(DownwardSweepLine.Line.Point1.y);
+            }
+            float x_two;
+            if (other.LineObject.line.IsVertical)
+            {
+                x_two = other.LineObject.line.Point1.x;
+            }
+            else
+            {
+                x_two = other.LineObject.line.X(DownwardSweepLine.Line.Point1.y);
+            }
+
+            // If points are close, it matters to look above or below the sweep line.
             if (Math.Abs(x_one - x_two) < 1e-4f)
             {
                 if (DownwardSweepLine.ComparePreEvent)
                 {
-                    return LineObject.Highest().x > other.LineObject.Highest().x ? 1 : -1;
+                    // TODO if slope is undefined (one of the two is vertical).
+                    float min = Math.Min(LineObject.Highest().y, other.LineObject.Highest().y);
+                    return LineObject.line.X(min) > other.LineObject.line.X(min) ? 1 : -1;
                 } else
                 {
-                    return LineObject.Lowest().x > other.LineObject.Lowest().x ? 1 : -1;
+                    // TODO if slope is undefined (one of the two is vertical).
+                    float max = Math.Max(LineObject.Lowest().y, other.LineObject.Lowest().y);
+                    return LineObject.line.X(max) > other.LineObject.line.X(max) ? 1 : -1;
                 }
             } else
             {
+                //If points are close? then???
                 if (Math.Abs(x_one - x_two) < 1e-3f)
                 {
                     Debug.LogWarning("Very close..? Is StatusItem comparison lenient enough? one: " + x_one + " other: " + x_two);
@@ -225,6 +252,7 @@ namespace CastleCrushers
         {
             if (ev.IsStart)
             {
+                ComparePreEvent = false;
                 if (!status.Insert(ev.StatusItem)) // TODO: the comparer of StatusItem (which depends on the sweepline like what the fuck man 
                 {
                     throw new ArgumentException("Failed to insert into state");
@@ -244,12 +272,12 @@ namespace CastleCrushers
             }
             else if (ev.IsEnd)
             {
+                ComparePreEvent = true;
                 StatusItem prev;
                 bool hasPrev = status.FindNextSmallest(ev.StatusItem, out prev);
 
                 StatusItem next;
                 bool hasNext = status.FindNextBiggest(ev.StatusItem, out next);
-
                 if (!status.Delete(ev.StatusItem))
                 {
                     throw new Exception("Could not delete from status : (");
@@ -265,16 +293,15 @@ namespace CastleCrushers
                 StatusItem left = ev.StatusItem;
                 StatusItem right = ev.IntersectingStatusItem;
                 this.intersections.Add(new Intersection(left.LineObject, right.LineObject));
-
                 // Remove
                 ComparePreEvent = true;
                 if (!status.Delete(left))
                 {
-                    Debug.LogWarning(left + " not deleted");
+                    throw new Exception(left + " not deleted.");
                 }
                 if (!status.Delete(right))
                 {
-                    Debug.LogWarning(right + " not deleted");
+                    throw new Exception(right + " not deleted.");
                 }
 
                 // Swap
@@ -283,6 +310,7 @@ namespace CastleCrushers
                 // Add
                 status.Insert(left);
                 status.Insert(right);
+                
                 // NOTE: At this point, ComparePreEvent = false implies that right PRECEDES left now
 
                 StatusItem prev;
