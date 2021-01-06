@@ -141,7 +141,9 @@ namespace CastleCrushers
                 covered[i] = false;
             }
 
-            while (!IsAllTrue(covered))
+            return 0;
+            // TODO fix
+            while (IsAllTrue(covered) == false)
             {
                 shots += 1;
                 Index highest = GetHighestIndex(counts);
@@ -149,7 +151,17 @@ namespace CastleCrushers
                 int j = highest.j;
                 for (int k = 0; k < N; k++)
                 {
-                    covered[k] = covered[k] || sets[i, j, k];
+                    if (!covered[k] && sets[i, j, k])
+                    {
+                        covered[k] = true;
+                        for (int a = 0; i < 2 * N; i++)
+                        {
+                            for (int b = i + 2 - (i % 2); j < 2 * N; j++)
+                            {
+                                sets[a, b, k] = false;
+                            }
+                        }
+                    }
                 }
             }
 

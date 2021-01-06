@@ -91,11 +91,11 @@
             float MIN_HEIGHT = -3.5f;
             float MAX_HEIGHT = 3.5f;
 
-            // Run it 10 times because it is randomized. I dont expect to catch all bugs but at least this is better than only once
-            for (int N = 0; N < 10; N++)
+            // Run it 3 times because it is randomized. I dont expect to catch all bugs but at least this is better than only once
+            // NOTE: NOT fixed this test case for horizontal line segments
+            for (int N = 0; N < 3; N++)
             {
                 // Generator code
-                // NOTE: NOT fixed this test case for horizontal line segments
                 List<LineObject> lines = new List<LineObject>();
                 for (int i = 0; i < maxWalls; i++)
                 {

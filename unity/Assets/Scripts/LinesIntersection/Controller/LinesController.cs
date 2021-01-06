@@ -223,7 +223,6 @@ namespace CastleCrushers {
 
                 foreach (LineObject line in lines)
                 {
-                    Debug.LogWarning("Adding wall");
                     Vector2 position1 = line.line.Point1;
                     Vector2 position2 = line.line.Point2;
 
