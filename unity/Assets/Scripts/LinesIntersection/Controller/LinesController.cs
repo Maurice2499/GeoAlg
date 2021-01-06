@@ -10,7 +10,7 @@ namespace CastleCrushers {
 		public LineSegment line;
 		public GameObject obj;
         public Vector2 yRange; //x is lower y and y is upper y
-        public bool remove = true;
+        public bool broken = false;
 
 		public LineObject(LineSegment line, GameObject obj) {
 			this.line = line;
@@ -27,28 +27,15 @@ namespace CastleCrushers {
         {
             return this.line.Point1.y < this.line.Point2.y ? this.line.Point1 : this.line.Point2;
         }
+ 
+        public void Break()
+        {
+            this.broken = true;
+        }
 
         public override string ToString()
         {
             return "LO cont " + line.ToString();
-        }
-    }
-
-    public class Wall
-    {
-        public LineObject LineObject;
-
-        public bool broken;
-
-        public Wall(LineObject lineObject)
-        {
-            LineObject = lineObject;
-            broken = false;
-        }
-
-        public void Break()
-        {
-            this.broken = true;
         }
     }
 
@@ -75,7 +62,7 @@ namespace CastleCrushers {
 
 		public List<LineObject> shots = new List<LineObject>();
 
-		public List<Wall> walls = new List<Wall>();
+		public List<LineObject> walls = new List<LineObject>();
         
 		private const float MIN_WIDTH = -7.8f;
 		private const float MAX_WIDTH = 7.8f;
@@ -162,10 +149,10 @@ namespace CastleCrushers {
 				Destroy(shot.obj);
 			}
 			shots = new List<LineObject>();
-			foreach (Wall wall in walls) {
-				Destroy(wall.LineObject.obj);
+			foreach (LineObject wall in walls) {
+				Destroy(wall.obj);
 			}
-			walls = new List<Wall>();
+			walls = new List<LineObject>();
 		}
 
 		private void LoadLevel(int id) {
@@ -180,7 +167,7 @@ namespace CastleCrushers {
 				newWall.GetComponent<LineRenderer>().SetPosition(0, level.startPoints[i]);
 				newWall.GetComponent<LineRenderer>().SetPosition(1, level.endPoints[i]);
 
-				walls.Add(new Wall(new LineObject(new LineSegment(level.startPoints[i], level.endPoints[i]), newWall)));
+				walls.Add(new LineObject(new LineSegment(level.startPoints[i], level.endPoints[i]), newWall));
             }
 		}
 
@@ -189,38 +176,29 @@ namespace CastleCrushers {
 
             Debug.LogWarning("Running tests");
             new SweepTest();
+            new ShotSolverTest();
             Debug.LogWarning("Tests completed");
 
-            // Run it 10 times because it is randomized. I dont expect to catch all bugs but at least this is better than only once
-            maxWalls = 10;
             bool horizontalLine = true;
             while (horizontalLine) // change this number for more random!
             {
                 horizontalLine = false;
                 // Generator code
                 List<LineObject> lines = new List<LineObject>();
-                foreach (Wall wall in walls)
+                foreach (LineObject wall in walls)
                 {
-                    Destroy(wall.LineObject.obj);
+                    Destroy(wall.obj);
                 }
-                walls = new List<Wall>();
+                walls = new List<LineObject>();
                 for (int i = 0; i < maxWalls; i++)
                 {
                     Vector2 position1 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
                     Vector2 position2 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
-                   
-
-                    GameObject newWall = Instantiate(wallPrefab, wallObjects);
-                    newWall.transform.Find("StartCastle").position = position1;
-                    newWall.transform.Find("EndCastle").position = position2;
-                    newWall.GetComponent<LineRenderer>().SetPosition(0, position1);
-                    newWall.GetComponent<LineRenderer>().SetPosition(1, position2);
-
 
                     LineSegment newLine = new LineSegment(position1, position2);
-                    LineObject newLineObj = new LineObject(newLine, newWall);
+                    LineObject newLineObj = new LineObject(newLine, null);
                     lines.Add(newLineObj);
-                    walls.Add(new Wall(newLineObj));
+                    walls.Add(newLineObj);
 
                     if (newLine.IsHorizontal) {
                         horizontalLine = true;
@@ -235,11 +213,28 @@ namespace CastleCrushers {
 
                 DownwardSweepLine sweep = new DownwardSweepLine(lines);
                 List<Intersection> intersections = sweep.Run();
+
+                // TODO a better way to decide which intersections should leave. Possibly split up in multiple ?
                 foreach (Intersection intersection in intersections)
                 {
-                    intersection.two.remove = true;
+                    intersection.two.Break();
                 }
-                lines.RemoveAll(item => item.remove);
+                lines.RemoveAll(item => item.broken);
+
+                foreach (LineObject line in lines)
+                {
+                    Debug.LogWarning("Adding wall");
+                    Vector2 position1 = line.line.Point1;
+                    Vector2 position2 = line.line.Point2;
+
+                    GameObject newWall = Instantiate(wallPrefab, wallObjects);
+                    newWall.transform.Find("StartCastle").position = position1;
+                    newWall.transform.Find("EndCastle").position = position2;
+                    newWall.GetComponent<LineRenderer>().SetPosition(0, position1);
+                    newWall.GetComponent<LineRenderer>().SetPosition(1, position2);
+
+                    line.obj = newWall;
+                }
 
                 DownwardSweepLine sweep2 = new DownwardSweepLine(lines);
                 if (sweep2.Run().Count != 0)
@@ -260,29 +255,29 @@ namespace CastleCrushers {
 				mat = wallMat;
 			}
 
-			foreach (Wall wall in walls) {
-				wall.LineObject.obj.GetComponent<Renderer>().material = mat;
-				wall.LineObject.obj.transform.Find("StartCastle").GetComponent<SpriteRenderer>().sprite = sprite;
-				wall.LineObject.obj.transform.Find("EndCastle").GetComponent<SpriteRenderer>().sprite = sprite;
+			foreach (LineObject wall in walls) {
+				wall.obj.GetComponent<Renderer>().material = mat;
+				wall.obj.transform.Find("StartCastle").GetComponent<SpriteRenderer>().sprite = sprite;
+				wall.obj.transform.Find("EndCastle").GetComponent<SpriteRenderer>().sprite = sprite;
 			}
 		}
 
 		// Updates textures of walls according to whether they have been shot or not.
 		private void UpdateWallDestroyed()
         {
-            foreach (Wall wall in walls)
+            foreach (LineObject wall in walls)
 			{
 				if (wall.broken) {
-					wall.LineObject.obj.GetComponent<Renderer>().material = wallDestroyedMat;
+					wall.obj.GetComponent<Renderer>().material = wallDestroyedMat;
 				} else {
-					wall.LineObject.obj.GetComponent<Renderer>().material = wallMat;
+					wall.obj.GetComponent<Renderer>().material = wallMat;
 				}
 			}
 		}
 
 		//To check the solution
 		public bool CheckSolution() {
-			foreach (Wall wall in walls) {
+			foreach (LineObject wall in walls) {
 				if (!wall.broken) {
 					return false;
 				}

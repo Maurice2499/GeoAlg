@@ -95,6 +95,7 @@
             for (int N = 0; N < 10; N++)
             {
                 // Generator code
+                // NOTE: NOT fixed this test case for horizontal line segments
                 List<LineObject> lines = new List<LineObject>();
                 for (int i = 0; i < maxWalls; i++)
                 {
@@ -110,10 +111,10 @@
                 List<Intersection> intersections = sweep.Run();
                 foreach (Intersection intersection in intersections)
                 {
-                    intersection.two.remove = true;
+                    intersection.two.Break();
                 }
-                lines.RemoveAll(item => item.remove);
-
+                lines.RemoveAll(item => item.broken);
+ 
                 DownwardSweepLine sweep2 = new DownwardSweepLine(lines);
                 Assert.AreEqual(sweep2.Run().Count, 0);
             }
