@@ -3,16 +3,19 @@ using UnityEngine;
 using Util.Geometry;
 using UnityEngine.UI;
 using CastleCrushers.Tests;
+using System;
 
 namespace CastleCrushers {
 	public class LineObject {
 		public LineSegment line;
 		public GameObject obj;
+        public Vector2 yRange; //x is lower y and y is upper y
         public bool remove = true;
 
 		public LineObject(LineSegment line, GameObject obj) {
 			this.line = line;
 			this.obj = obj;
+            this.yRange = new Vector2(this.Lowest().y, this.Highest().y);
 		}
 
         public Vector2 Highest() // Assumes this line is not horizontal
@@ -31,17 +34,15 @@ namespace CastleCrushers {
         }
     }
 
-    public class Shot : LineObject
+    public class Wall
     {
-        public Shot(LineSegment line, GameObject obj) : base(line, obj) { }
-    }
+        public LineObject LineObject;
 
-    public class Wall : LineObject
-    {
         public bool broken;
 
-        public Wall(LineSegment line, GameObject obj):  base(line, obj)
+        public Wall(LineObject lineObject)
         {
+            LineObject = lineObject;
             broken = false;
         }
 
@@ -72,10 +73,10 @@ namespace CastleCrushers {
 
 		private int maxShots = 5;
 
-		public List<Shot> shots = new List<Shot>();
+		public List<LineObject> shots = new List<LineObject>();
 
 		public List<Wall> walls = new List<Wall>();
-
+        
 		private const float MIN_WIDTH = -7.8f;
 		private const float MAX_WIDTH = 7.8f;
 		private const float MIN_HEIGHT = -3.5f;
@@ -107,7 +108,7 @@ namespace CastleCrushers {
 			return advanceButton.activeSelf;
         }
 
-		public void AddNewShot(Shot shot) {
+		public void AddNewShot(LineObject shot) {
 			shots.Add(shot);
 			if (CheckSolution()) {
 				SetWallsDestroyed(true);
@@ -123,7 +124,7 @@ namespace CastleCrushers {
 			}
 
 			float min = Vector3.Distance(shots[0].line.Point1, pos);
-			Shot closest = shots[0];
+            LineObject closest = shots[0];
 
 			for (int i = 1; i < shots.Count; i++) {
 				if (Vector3.Distance(shots[i].line.Point1, pos) < min) { // Alternatively, closest line: shots[i].line.DistanceToPoint(pos) < min
@@ -157,12 +158,12 @@ namespace CastleCrushers {
 		}
 
 		private void ClearLevel() {
-			foreach (Shot shot in shots) {
+			foreach (LineObject shot in shots) {
 				Destroy(shot.obj);
 			}
-			shots = new List<Shot>();
+			shots = new List<LineObject>();
 			foreach (Wall wall in walls) {
-				Destroy(wall.obj);
+				Destroy(wall.LineObject.obj);
 			}
 			walls = new List<Wall>();
 		}
@@ -179,7 +180,7 @@ namespace CastleCrushers {
 				newWall.GetComponent<LineRenderer>().SetPosition(0, level.startPoints[i]);
 				newWall.GetComponent<LineRenderer>().SetPosition(1, level.endPoints[i]);
 
-				walls.Add(new Wall(new LineSegment(level.startPoints[i], level.endPoints[i]), newWall));
+				walls.Add(new Wall(new LineObject(new LineSegment(level.startPoints[i], level.endPoints[i]), newWall)));
             }
 		}
 
@@ -190,34 +191,62 @@ namespace CastleCrushers {
             new SweepTest();
             Debug.LogWarning("Tests completed");
 
-			for (int i = 0; i < maxWalls; i++) {
-				Vector2 position1 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
-				Vector2 position2 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
+            // Run it 10 times because it is randomized. I dont expect to catch all bugs but at least this is better than only once
+            maxWalls = 10;
+            bool horizontalLine = true;
+            while (horizontalLine) // change this number for more random!
+            {
+                horizontalLine = false;
+                // Generator code
+                List<LineObject> lines = new List<LineObject>();
+                foreach (Wall wall in walls)
+                {
+                    Destroy(wall.LineObject.obj);
+                }
+                walls = new List<Wall>();
+                for (int i = 0; i < maxWalls; i++)
+                {
+                    Vector2 position1 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
+                    Vector2 position2 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
+                   
 
-				LineSegment newLine = new LineSegment(position1, position2);
+                    GameObject newWall = Instantiate(wallPrefab, wallObjects);
+                    newWall.transform.Find("StartCastle").position = position1;
+                    newWall.transform.Find("EndCastle").position = position2;
+                    newWall.GetComponent<LineRenderer>().SetPosition(0, position1);
+                    newWall.GetComponent<LineRenderer>().SetPosition(1, position2);
 
-				// TODO: later use sweep line for intersection check? SEE OTHER FILE : )
-				float wallLength = Vector2.Distance(newLine.Point1, newLine.Point2);
-				bool valid = wallLength >= 1;
 
-				foreach (Wall wall in walls) {
-					if (newLine.Intersect(wall.line) != null || newLine.DistanceToPoint(wall.line.Point1) < 1 || newLine.DistanceToPoint(wall.line.Point2) < 1
-							|| wall.line.DistanceToPoint(newLine.Point1) < 1 || wall.line.DistanceToPoint(newLine.Point2) < 1) {
-						valid = false;
-						break;
-					}
-				}
+                    LineSegment newLine = new LineSegment(position1, position2);
+                    LineObject newLineObj = new LineObject(newLine, newWall);
+                    lines.Add(newLineObj);
+                    walls.Add(new Wall(newLineObj));
 
-				if (valid) {
-					GameObject newWall = Instantiate(wallPrefab, wallObjects);
-					newWall.transform.Find("StartCastle").position = position1;
-					newWall.transform.Find("EndCastle").position = position2;
-					newWall.GetComponent<LineRenderer>().SetPosition(0, position1);
-					newWall.GetComponent<LineRenderer>().SetPosition(1, position2);
+                    if (newLine.IsHorizontal) {
+                        horizontalLine = true;
+                        break;
+                    }
+                }
+                
+                if (horizontalLine)
+                {
+                    continue;
+                }
 
-					walls.Add(new Wall(newLine, newWall));
-				}
-			}
+                DownwardSweepLine sweep = new DownwardSweepLine(lines);
+                List<Intersection> intersections = sweep.Run();
+                foreach (Intersection intersection in intersections)
+                {
+                    intersection.two.remove = true;
+                }
+                lines.RemoveAll(item => item.remove);
+
+                DownwardSweepLine sweep2 = new DownwardSweepLine(lines);
+                if (sweep2.Run().Count != 0)
+                {
+                    throw new Exception("Test error");
+                }
+            }
 		}
 
 		private void SetWallsDestroyed(bool destroyed) {
@@ -232,9 +261,9 @@ namespace CastleCrushers {
 			}
 
 			foreach (Wall wall in walls) {
-				wall.obj.GetComponent<Renderer>().material = mat;
-				wall.obj.transform.Find("StartCastle").GetComponent<SpriteRenderer>().sprite = sprite;
-				wall.obj.transform.Find("EndCastle").GetComponent<SpriteRenderer>().sprite = sprite;
+				wall.LineObject.obj.GetComponent<Renderer>().material = mat;
+				wall.LineObject.obj.transform.Find("StartCastle").GetComponent<SpriteRenderer>().sprite = sprite;
+				wall.LineObject.obj.transform.Find("EndCastle").GetComponent<SpriteRenderer>().sprite = sprite;
 			}
 		}
 
@@ -244,9 +273,9 @@ namespace CastleCrushers {
             foreach (Wall wall in walls)
 			{
 				if (wall.broken) {
-					wall.obj.GetComponent<Renderer>().material = wallDestroyedMat;
+					wall.LineObject.obj.GetComponent<Renderer>().material = wallDestroyedMat;
 				} else {
-					wall.obj.GetComponent<Renderer>().material = wallMat;
+					wall.LineObject.obj.GetComponent<Renderer>().material = wallMat;
 				}
 			}
 		}

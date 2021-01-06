@@ -11,7 +11,7 @@
 
         public SweepTest()
         {
-            //Test1(); En deze doet ook nog gek?
+            Test1();
             Test2();
             Test3();
             //Test4(); Deze doet t nog steeds niet
@@ -23,7 +23,7 @@
         {
             List<LineObject> lines = new List<LineObject>()
             {
-                new LineObject(new LineSegment(new Vector2(1,1), new Vector2(3,3)), null),
+                new LineObject(new LineSegment(new Vector2(3,1), new Vector2(1,3)), null),
                 new LineObject(new LineSegment(new Vector2(1.1f,1.1f), new Vector2(2.9f,2.9f)), null)
             };
             DownwardSweepLine sweep = new DownwardSweepLine(lines);
