@@ -18,6 +18,13 @@ namespace CastleCrushers {
             this.yRange = new Vector2(this.Lowest().y, this.Highest().y);
 		}
 
+		// Changes the highest point.
+		public void NewHighest(Vector2 newTop)
+        {
+			this.line = new LineSegment(newTop, this.Lowest());
+			this.yRange = new Vector2(this.Lowest().y, this.Highest().y);
+		}
+
         public Vector2 Highest() // Assumes this line is not horizontal
         {
             return this.line.Point1.y > this.line.Point2.y ? this.line.Point1 : this.line.Point2;
@@ -69,7 +76,7 @@ namespace CastleCrushers {
 		private const float MIN_HEIGHT = -3.5f;
 		private const float MAX_HEIGHT = 3.5f;
 
-		private const int ENDLESS_START = 10;
+		private const int ENDLESS_START = 3;
 		private const int ENDLESS_INCREASE = 5;
 		private const int ENDLESS_MAX = 200;
 
@@ -183,21 +190,15 @@ namespace CastleCrushers {
             while (horizontalLine) // change this number for more random!
             {
                 horizontalLine = false;
-                // Generator code
-                List<LineObject> lines = new List<LineObject>();
-                foreach (LineObject wall in walls)
-                {
-                    Destroy(wall.obj);
-                }
-                walls = new List<LineObject>();
+				// Generator code
+				List<LineObject> walls = new List<LineObject>();
                 for (int i = 0; i < maxWalls; i++)
                 {
                     Vector2 position1 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
                     Vector2 position2 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
 
                     LineSegment newLine = new LineSegment(position1, position2);
-                    LineObject newLineObj = new LineObject(newLine, null);
-                    lines.Add(newLineObj);
+					LineObject newLineObj = new LineObject(newLine, null);
                     walls.Add(newLineObj);
 
                     if (newLine.IsHorizontal) {
@@ -211,17 +212,32 @@ namespace CastleCrushers {
                     continue;
                 }
 
-                DownwardSweepLine sweep = new DownwardSweepLine(lines);
+                DownwardSweepLine sweep = new DownwardSweepLine(walls);
                 List<Intersection> intersections = sweep.Run();
 
                 // TODO a better way to decide which intersections should leave. Possibly split up in multiple ?
                 foreach (Intersection intersection in intersections)
                 {
-                    intersection.two.Break();
-                }
-                lines.RemoveAll(item => item.broken);
+					//Vector2 point = (Vector2)intersection.two.line.Intersect(intersection.one.line);
+					//LineSegment oneTophalf = new LineSegment(intersection.one.Highest(), point);
+					//LineSegment twoTophalf = new LineSegment(intersection.two.Highest(), point);
+					//LineObject wallOne = new LineObject(oneTophalf, null);
+					//LineObject wallTwo = new LineObject(twoTophalf, null);
+					//walls.Add(wallOne);
+					//walls.Add(wallTwo);
 
-                foreach (LineObject line in lines)
+					//intersection.one.NewHighest(point);
+					//intersection.two.NewHighest(point);	
+
+					intersection.two.Break();
+				}
+
+				walls.RemoveAll(item => item.broken);
+
+				walls.RemoveAll(item => item.line.Magnitude < 1);
+
+
+                foreach (LineObject line in walls)
                 {
                     Vector2 position1 = line.line.Point1;
                     Vector2 position2 = line.line.Point2;
@@ -235,7 +251,7 @@ namespace CastleCrushers {
                     line.obj = newWall;
                 }
 
-                DownwardSweepLine sweep2 = new DownwardSweepLine(lines);
+                DownwardSweepLine sweep2 = new DownwardSweepLine(walls);
                 if (sweep2.Run().Count != 0)
                 {
                     throw new Exception("Test error");
