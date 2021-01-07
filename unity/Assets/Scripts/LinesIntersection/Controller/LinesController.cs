@@ -181,17 +181,17 @@ namespace CastleCrushers {
 		public void GenerateNewLevel(int maxWalls) {
 			ClearLevel();
 
-            Debug.LogWarning("Running tests");
-            new SweepTest();
-            new ShotSolverTest();
-            Debug.LogWarning("Tests completed");
+            //Debug.LogWarning("Running tests");
+            //new SweepTest();
+            //new ShotSolverTest();
+            //Debug.LogWarning("Tests completed");
 
             bool horizontalLine = true;
             while (horizontalLine) // change this number for more random!
             {
                 horizontalLine = false;
 				// Generator code
-				List<LineObject> walls = new List<LineObject>();
+				walls = new List<LineObject>();
                 for (int i = 0; i < maxWalls; i++)
                 {
                     Vector2 position1 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
@@ -257,6 +257,10 @@ namespace CastleCrushers {
                     throw new Exception("Test error");
                 }
             }
+
+            ShotSolver shotSolver = new ShotSolver(walls);
+
+            maxShots = shotSolver.GreedyCover();
 		}
 
 		private void SetWallsDestroyed(bool destroyed) {
