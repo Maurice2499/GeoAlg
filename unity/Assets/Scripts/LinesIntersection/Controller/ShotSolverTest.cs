@@ -12,6 +12,7 @@ namespace CastleCrushers.Tests
         {
             Test1();
             Test2();
+            Test3();
         }
 
         public void Test1()
@@ -27,6 +28,19 @@ namespace CastleCrushers.Tests
         }
 
         public void Test2()
+        {
+            List<LineSegment> lst = new List<LineSegment>()
+            {
+                new LineSegment(new Vector2(0,0), new Vector2(1,0)),
+                new LineSegment(new Vector2(1,1), new Vector2(2,1)),
+                new LineSegment(new Vector2(2,0), new Vector2(3,0))
+            };
+
+            ShotSolver solver = new ShotSolver(lst);
+            Assert.AreEqual(solver.GreedyCover(), 2);
+        }
+
+        public void Test3()
         {
             List<LineObject> lines = new List<LineObject>()
             {
