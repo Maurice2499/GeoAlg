@@ -1,4 +1,5 @@
 ﻿using MathNet.Numerics;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -43,6 +44,7 @@ namespace CastleCrushers
                 endpoints[2 * i + 1] = lines[i].Point2;
             }
             sets = new bool[2 * N, 2 * N, N];
+            CreateSets();
         }
 
         public void CreateSets()
@@ -51,14 +53,14 @@ namespace CastleCrushers
             {
                 for (int j = i + 2 - (i%2); j < 2 * lines.Length; j++)
                 {
-                    sets[i, j, i] = true;
-                    sets[i, j, j] = true;
+                    sets[i, j, i/2] = true;
+                    sets[i, j, j/2] = true;
 
                     LineSegment PossibleShot = new LineSegment(endpoints[i], endpoints[j]);
 
                     for (int k = 0; k < lines.Length; k++)
                     {
-                        if (k != i && k != j)
+                        if (k != i/2 && k != j/2)
                         {
                             sets[i, j, k] = (PossibleShot.Intersect(lines[k]) != null);
                         }
@@ -71,18 +73,20 @@ namespace CastleCrushers
         {
             public int i;
             public int j;
+            public int count;
 
-            public Index(int i, int j)
+            public Index(int i, int j, int count)
             {
                 this.i = i;
                 this.j = j;
+                this.count = count;
             }
         }
         private Index GetHighestIndex(int[,] counts)
         {
-            int max_i = 0;
-            int max_j = 2;
-            int max_count = counts[max_i, max_j];
+            int max_i = -1;
+            int max_j = -1;
+            int max_count = -1;
             for (int i = 0; i < 2 * N; i++)
             {
                 for (int j = i + 2 - (i % 2); j < 2 * N; j++)
@@ -95,7 +99,7 @@ namespace CastleCrushers
                     }
                 }
             }
-            return new Index(max_i, max_j);
+            return new Index(max_i, max_j, max_count);
         }
 
         private bool IsAllTrue(bool[] arr)
@@ -129,7 +133,7 @@ namespace CastleCrushers
                     counts[i, j] = 0;
                     for (int k = 0; k < N; k++)
                     {
-                        if (k != i && k != j)
+                        if (k == i/2 || k == j/2 || sets[i, j, k] == true)
                         {
                             counts[i, j] += 1;
                         }
@@ -141,24 +145,43 @@ namespace CastleCrushers
                 covered[i] = false;
             }
 
-            return 0;
             // TODO fix
-            while (IsAllTrue(covered) == false)
+            int x = N;
+            while (IsAllTrue(covered) == false && x > 0)
             {
                 shots += 1;
+                x -= 1;
+                
                 Index highest = GetHighestIndex(counts);
                 int i = highest.i;
                 int j = highest.j;
+                if (highest.count == 0)
+                {
+                    // Then, there are no more sets to place
+                    for (int k = 0; k < N; k++)
+                    {
+                        if (covered[k] == false)
+                        {
+                            covered[k] = true;
+                            break;
+                        }
+                    }
+                    continue;
+                }
+
                 for (int k = 0; k < N; k++)
                 {
-                    if (!covered[k] && sets[i, j, k])
+                    if (covered[k] == false && sets[i, j, k] == true)
                     {
                         covered[k] = true;
-                        for (int a = 0; i < 2 * N; i++)
+                        for (int a = 0; a < 2 * N; a++)
                         {
-                            for (int b = i + 2 - (i % 2); j < 2 * N; j++)
+                            for (int b = a + 2 - (a % 2); b < 2 * N; b++)
                             {
-                                sets[a, b, k] = false;
+                                if (sets[a, b, k] == true)
+                                {
+                                    counts[a, b] -= 1;
+                                }
                             }
                         }
                     }
