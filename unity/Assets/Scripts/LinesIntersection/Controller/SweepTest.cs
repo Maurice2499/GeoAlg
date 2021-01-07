@@ -113,7 +113,7 @@
                 {
                     intersection.two.Break();
                 }
-                lines.RemoveAll(item => item.broken);
+                lines.RemoveAll(item => item.hits > 0);
  
                 DownwardSweepLine sweep2 = new DownwardSweepLine(lines);
                 Assert.AreEqual(sweep2.Run().Count, 0);

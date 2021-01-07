@@ -34,7 +34,6 @@ namespace CastleCrushers {
 				} else {
 					LineSegment line = new LineSegment(shotStart, shotEnd);
                     LineObject newShot = new LineObject(line, shot);
-                    BreakIntersectingWalls(newShot, controller.walls);
                     controller.AddNewShot(newShot);
 				}
 				shot = null;
@@ -58,14 +57,5 @@ namespace CastleCrushers {
 			Transform cannon = shot.transform.Find("Cannon");
 			cannon.rotation = Quaternion.LookRotation(Vector3.forward, shotEnd - cannon.position);
 		}
-
-		private void BreakIntersectingWalls(LineObject shot, List<LineObject> walls) {
-			foreach (LineObject wall in walls) {
-				Vector2? intersection = wall.line.Intersect(shot.line);
-				if (intersection != null) {
-                    wall.Break();
-                }
-			}
-        }
 	}
 }

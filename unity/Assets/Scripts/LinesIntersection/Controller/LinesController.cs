@@ -10,7 +10,7 @@ namespace CastleCrushers {
 		public LineSegment line;
 		public GameObject obj;
         public Vector2 yRange; //x is lower y and y is upper y
-        public bool broken = false;
+        public int hits = 0;
 
 		public LineObject(LineSegment line, GameObject obj) {
 			this.line = line;
@@ -37,10 +37,18 @@ namespace CastleCrushers {
  
         public void Break()
         {
-            this.broken = true;
+			this.hits++;
         }
 
-        public override string ToString()
+		public void repair()
+		{
+			if (hits > 0)
+            {
+				this.hits--;
+			}
+		}
+
+		public override string ToString()
         {
             return "LO cont " + line.ToString();
         }
@@ -104,10 +112,20 @@ namespace CastleCrushers {
 
 		public void AddNewShot(LineObject shot) {
 			shots.Add(shot);
-			if (CheckSolution()) {
-				SetWallsDestroyed(true);
+			foreach (LineObject wall in walls)
+			{
+				Vector2? intersection = wall.line.Intersect(shot.line);
+				if (intersection != null)
+				{
+					wall.Break();
+				}
+			}
+
+			if (CheckSolution())
+			{
 				advanceButton.SetActive(true);
 			}
+
 			UpdateWallDestroyed();
 			UpdateRemainingShots();
 		}
@@ -124,6 +142,15 @@ namespace CastleCrushers {
 				if (Vector3.Distance(shots[i].line.Point1, pos) < min) { // Alternatively, closest line: shots[i].line.DistanceToPoint(pos) < min
 					closest = shots[i];
 					min = shots[i].line.DistanceToPoint(pos);
+				}
+			}
+
+			foreach (LineObject wall in walls)
+			{
+				Vector2? intersection = wall.line.Intersect(closest.line);
+				if (intersection != null)
+				{
+					wall.repair();
 				}
 			}
 
@@ -232,7 +259,7 @@ namespace CastleCrushers {
 					intersection.two.Break();
 				}
 
-				walls.RemoveAll(item => item.broken);
+				walls.RemoveAll(item => item.hits > 0);
 
 				walls.RemoveAll(item => item.line.Magnitude < 1);
 
@@ -263,33 +290,19 @@ namespace CastleCrushers {
             maxShots = shotSolver.GreedyCover();
 		}
 
-		private void SetWallsDestroyed(bool destroyed) {
-			Sprite sprite;
-			Material mat;
-			if (destroyed) {
-				sprite = castleDestroyedSprite;
-				mat = wallDestroyedMat;
-			} else {
-				sprite = castleSprite;
-				mat = wallMat;
-			}
-
-			foreach (LineObject wall in walls) {
-				wall.obj.GetComponent<Renderer>().material = mat;
-				wall.obj.transform.Find("StartCastle").GetComponent<SpriteRenderer>().sprite = sprite;
-				wall.obj.transform.Find("EndCastle").GetComponent<SpriteRenderer>().sprite = sprite;
-			}
-		}
-
-		// Updates textures of walls according to whether they have been shot or not.
+				// Updates textures of walls according to whether they have been shot or not.
 		private void UpdateWallDestroyed()
         {
             foreach (LineObject wall in walls)
 			{
-				if (wall.broken) {
+				if (wall.hits > 0) {
 					wall.obj.GetComponent<Renderer>().material = wallDestroyedMat;
+					wall.obj.transform.Find("StartCastle").GetComponent<SpriteRenderer>().sprite = castleDestroyedSprite;
+					wall.obj.transform.Find("EndCastle").GetComponent<SpriteRenderer>().sprite = castleDestroyedSprite;
 				} else {
 					wall.obj.GetComponent<Renderer>().material = wallMat;
+					wall.obj.transform.Find("StartCastle").GetComponent<SpriteRenderer>().sprite = castleSprite;
+					wall.obj.transform.Find("EndCastle").GetComponent<SpriteRenderer>().sprite = castleSprite;
 				}
 			}
 		}
@@ -297,7 +310,7 @@ namespace CastleCrushers {
 		//To check the solution
 		public bool CheckSolution() {
 			foreach (LineObject wall in walls) {
-				if (!wall.broken) {
+				if (!(wall.hits > 0)) {
 					return false;
 				}
 			}
