@@ -85,7 +85,7 @@ namespace CastleCrushers {
 		private const float MAX_HEIGHT = 3.5f;
 
 		private const int ENDLESS_START = 3;
-		private const int ENDLESS_INCREASE = 5;
+		private const int ENDLESS_INCREASE = 1;
 		private const int ENDLESS_MAX = 200;
 
 		// Use this for initialization
@@ -208,11 +208,6 @@ namespace CastleCrushers {
 		public void GenerateNewLevel(int maxWalls) {
 			ClearLevel();
 
-            //Debug.LogWarning("Running tests");
-            //new SweepTest();
-            //new ShotSolverTest();
-            //Debug.LogWarning("Tests completed");
-
             bool horizontalLine = true;
             while (horizontalLine) // change this number for more random!
             {
@@ -245,18 +240,18 @@ namespace CastleCrushers {
                 // TODO a better way to decide which intersections should leave. Possibly split up in multiple ?
                 foreach (Intersection intersection in intersections)
                 {
-					//Vector2 point = (Vector2)intersection.two.line.Intersect(intersection.one.line);
-					//LineSegment oneTophalf = new LineSegment(intersection.one.Highest(), point);
-					//LineSegment twoTophalf = new LineSegment(intersection.two.Highest(), point);
-					//LineObject wallOne = new LineObject(oneTophalf, null);
-					//LineObject wallTwo = new LineObject(twoTophalf, null);
-					//walls.Add(wallOne);
-					//walls.Add(wallTwo);
+					Vector2 point = (Vector2)intersection.two.line.Intersect(intersection.one.line);
+					LineSegment oneTophalf = new LineSegment(intersection.one.Highest(), point);
+					LineSegment twoTophalf = new LineSegment(intersection.two.Highest(), point);
+					LineObject wallOne = new LineObject(oneTophalf, null);
+					LineObject wallTwo = new LineObject(twoTophalf, null);
+					walls.Add(wallOne);
+					walls.Add(wallTwo);
 
-					//intersection.one.NewHighest(point);
-					//intersection.two.NewHighest(point);	
+					intersection.one.NewHighest(point);
+					intersection.two.NewHighest(point);	
 
-					intersection.two.Break();
+					//intersection.two.Break();
 				}
 
 				walls.RemoveAll(item => item.hits > 0);
@@ -276,12 +271,6 @@ namespace CastleCrushers {
                     newWall.GetComponent<LineRenderer>().SetPosition(1, position2);
 
                     line.obj = newWall;
-                }
-
-                DownwardSweepLine sweep2 = new DownwardSweepLine(walls);
-                if (sweep2.Run().Count != 0)
-                {
-                    throw new Exception("Test error");
                 }
             }
 
