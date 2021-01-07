@@ -190,25 +190,14 @@ namespace CastleCrushers {
             while (horizontalLine) // change this number for more random!
             {
                 horizontalLine = false;
-                // Generator code
-                foreach (LineObject wall in walls)
-                {
-                    Destroy(wall.obj);
-                }
-                walls = new List<LineObject>();
+				// Generator code
+				List<LineObject> walls = new List<LineObject>();
                 for (int i = 0; i < maxWalls; i++)
                 {
                     Vector2 position1 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
                     Vector2 position2 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
 
                     LineSegment newLine = new LineSegment(position1, position2);
-					
-					if (newLine.Magnitude < 1)
-                    {
-						//break;
-                    }
-					
-					//GameObject newWall = Instantiate(wallPrefab, wallObjects);
 					LineObject newLineObj = new LineObject(newLine, null);
                     walls.Add(newLineObj);
 
@@ -229,17 +218,23 @@ namespace CastleCrushers {
                 // TODO a better way to decide which intersections should leave. Possibly split up in multiple ?
                 foreach (Intersection intersection in intersections)
                 {
-					Vector2 point = (Vector2)intersection.two.line.Intersect(intersection.one.line);
-					LineSegment oneTophalf = new LineSegment(intersection.one.Highest(), point);
-					LineSegment twoTophalf = new LineSegment(intersection.two.Highest(), point);
-					LineObject wallOne = new LineObject(oneTophalf, null);
-					LineObject wallTwo = new LineObject(twoTophalf, null);
-					walls.Add(wallOne);
-					walls.Add(wallTwo);
+					//Vector2 point = (Vector2)intersection.two.line.Intersect(intersection.one.line);
+					//LineSegment oneTophalf = new LineSegment(intersection.one.Highest(), point);
+					//LineSegment twoTophalf = new LineSegment(intersection.two.Highest(), point);
+					//LineObject wallOne = new LineObject(oneTophalf, null);
+					//LineObject wallTwo = new LineObject(twoTophalf, null);
+					//walls.Add(wallOne);
+					//walls.Add(wallTwo);
 
-					intersection.one.NewHighest(point);
-					intersection.two.NewHighest(point);		
+					//intersection.one.NewHighest(point);
+					//intersection.two.NewHighest(point);	
+
+					intersection.two.Break();
 				}
+
+				walls.RemoveAll(item => item.broken);
+
+				walls.RemoveAll(item => item.line.Magnitude < 1);
 
 
                 foreach (LineObject line in walls)
