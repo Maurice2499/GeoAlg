@@ -17,6 +17,8 @@ namespace CastleCrushers
         public bool[,,] sets; // at sets[i][j][k] is the boolean whether the k-th line is shot by the i to j th line
         // Note: sets[i][j] only maintained iff i<j
 
+        private const float EDGE_RATIO = 19;
+
         public ShotSolver(List<LineSegment> lines)
         {
             this.lines = lines.ToArray();
@@ -40,8 +42,8 @@ namespace CastleCrushers
             endpoints = new Vector2[2 * N];
             for (int i = 0; i < N; i++)
             {
-                endpoints[2 * i] = lines[i].Point1;
-                endpoints[2 * i + 1] = lines[i].Point2;
+                endpoints[2 * i] =  (lines[i].Point1 *EDGE_RATIO + lines[i].Point2)/(EDGE_RATIO+1);
+                endpoints[2 * i + 1] = (lines[i].Point1 + lines[i].Point2 * EDGE_RATIO) / (EDGE_RATIO + 1);
             }
             sets = new bool[2 * N, 2 * N, N];
             CreateSets();

@@ -10,7 +10,7 @@ namespace CastleCrushers {
 		public LineSegment line;
 		public GameObject obj;
         public Vector2 yRange; //x is lower y and y is upper y
-        public int hits = 0;
+		public int hits = 0;
 
 		public LineObject(LineSegment line, GameObject obj) {
 			this.line = line;
@@ -72,6 +72,8 @@ namespace CastleCrushers {
 		[SerializeField] private GameObject advanceButton;
 
 		[SerializeField] private bool endless;
+
+		private const float MIN_WALL_SIZE = 2;
 
 		private int maxShots = 5;
 
@@ -208,7 +210,11 @@ namespace CastleCrushers {
 		public void GenerateNewLevel(int maxWalls) {
 			ClearLevel();
 
-            bool horizontalLine = true;
+			new SweepTest();
+			new ShotSolverTest();
+			Debug.Log("tests done");
+
+			bool horizontalLine = true;
             while (horizontalLine) // change this number for more random!
             {
                 horizontalLine = false;
@@ -256,7 +262,7 @@ namespace CastleCrushers {
 
 				walls.RemoveAll(item => item.hits > 0);
 
-				walls.RemoveAll(item => item.line.Magnitude < 1);
+				walls.RemoveAll(item => item.line.Magnitude < MIN_WALL_SIZE);
 
 
                 foreach (LineObject line in walls)
