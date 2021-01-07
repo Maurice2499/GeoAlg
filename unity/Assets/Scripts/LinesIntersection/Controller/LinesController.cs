@@ -196,7 +196,8 @@ namespace CastleCrushers {
                     Vector2 position2 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
 
                     LineSegment newLine = new LineSegment(position1, position2);
-                    LineObject newLineObj = new LineObject(newLine, null);
+					GameObject newWall = Instantiate(wallPrefab, wallObjects);
+					LineObject newLineObj = new LineObject(newLine, newWall);
                     lines.Add(newLineObj);
                     walls.Add(newLineObj);
 
