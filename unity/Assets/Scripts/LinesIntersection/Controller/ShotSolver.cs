@@ -61,7 +61,7 @@ namespace CastleCrushers
                     for (int k = 0; k < lines.Length; k++)
                     {
                         // Exlude line through endpoints
-                        sets[i, j, k] = (PossibleShot.IntersectProper(lines[k]) != null);
+                        sets[i, j, k] = (PossibleShot.Intersect(lines[k]) != null);
                     }
                 }
             }
