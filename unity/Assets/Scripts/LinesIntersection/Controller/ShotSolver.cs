@@ -56,12 +56,12 @@ namespace CastleCrushers
                 for (int j = i + 2 - (i%2); j < 2 * lines.Length; j++)
                 {
 
-                    LineSegment PossibleShot = new LineSegment(endpoints[i], endpoints[j]);
+                    Line PossibleShot = new Line(endpoints[i], endpoints[j]);
 
                     for (int k = 0; k < lines.Length; k++)
                     {
                         // Exlude line through endpoints
-                        sets[i, j, k] = (PossibleShot.IntersectProper(lines[k]) != null);
+                        sets[i, j, k] = (lines[k].IntersectProper(PossibleShot) != null);
                     }
                 }
             }
@@ -115,7 +115,8 @@ namespace CastleCrushers
         // Returns the number of shots that are required to cover all lines greedily
         public int GreedyCover()
         {
-            if (lines.Length <= 2)
+            // TODO: check: or if N <= 1?
+            if (N <= 2)
             {
                 return 1;
             }

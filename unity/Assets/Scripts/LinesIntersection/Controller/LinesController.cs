@@ -244,6 +244,7 @@ namespace CastleCrushers {
                 List<Intersection> intersections = sweep.Run();
 
                 // TODO a better way to decide which intersections should leave. Possibly split up in multiple ?
+                // NOTE: VerticalSweep returns intersections in sorted order based on their intersection point. That is why we can add a line on top, and shorten the one below.
                 foreach (Intersection intersection in intersections)
                 {
 					Vector2 point = (Vector2)intersection.two.line.Intersect(intersection.one.line);
