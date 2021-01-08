@@ -55,17 +55,13 @@ namespace CastleCrushers
             {
                 for (int j = i + 2 - (i%2); j < 2 * lines.Length; j++)
                 {
-                    sets[i, j, i/2] = true;
-                    sets[i, j, j/2] = true;
 
                     LineSegment PossibleShot = new LineSegment(endpoints[i], endpoints[j]);
 
                     for (int k = 0; k < lines.Length; k++)
                     {
-                        if (k != i/2 && k != j/2)
-                        {
-                            sets[i, j, k] = (PossibleShot.Intersect(lines[k]) != null);
-                        }
+                        // Exlude line through endpoints
+                        sets[i, j, k] = (PossibleShot.IntersectProper(lines[k]) != null);
                     }
                 }
             }
