@@ -11,13 +11,13 @@ namespace CastleCrushers
     {
         // OR do we want Line here instead of LineSegment? Idk, but efficiency is nice here. Thats also why array
         public LineSegment[] lines;
-        private int N;
+        public int N;
         public Vector2[] endpoints;
 
         public bool[,,] sets; // at sets[i][j][k] is the boolean whether the k-th line is shot by the i to j th line
         // Note: sets[i][j] only maintained iff i<j
 
-        private const float EDGE_RATIO = 19;
+        public const float EDGE_RATIO = 19;
 
         public ShotSolver(List<LineSegment> lines)
         {
@@ -63,6 +63,8 @@ namespace CastleCrushers
                         // Exlude line through endpoints
                         sets[i, j, k] = (lines[k].IntersectProper(PossibleShot) != null);
                     }
+                    sets[i, j, i / 2] = true;
+                    sets[i, j, j / 2] = true;
                 }
             }
         }
@@ -113,15 +115,27 @@ namespace CastleCrushers
         }
 
         // Returns the number of shots that are required to cover all lines greedily
-        public int GreedyCover()
+        public List<Line> GreedyCover()
         {
             // TODO: check: or if N <= 1?
             if (N <= 2)
             {
-                return 1;
+                if (N == 0)
+                {
+                    return new List<Line>();
+                }
+                else if (N == 1)
+                {
+                    return new List<Line>() { lines[0].Bissector };
+                }
+                else
+                {
+                    return new List<Line>() { new Line(endpoints[0], endpoints[2]) };
+                }
             }
 
             int shots = 0;
+            List<Line> shotLines = new List<Line>();
             int[,] counts = new int[2 * N, 2 * N];
             bool[] covered = new bool[N];
 
@@ -161,6 +175,7 @@ namespace CastleCrushers
                     {
                         if (covered[k] == false)
                         {
+                            shotLines.Add(lines[k].Bissector);
                             covered[k] = true;
                             break;
                         }
@@ -168,6 +183,7 @@ namespace CastleCrushers
                     continue;
                 }
 
+                shotLines.Add(new Line(endpoints[i], endpoints[j]));
                 for (int k = 0; k < N; k++)
                 {
                     if (covered[k] == false && sets[i, j, k] == true)
@@ -187,7 +203,7 @@ namespace CastleCrushers
                 }
             }
 
-            return shots;
+            return shotLines;
         }
     }
 }
