@@ -57,5 +57,14 @@ namespace CastleCrushers {
 			Transform cannon = shot.transform.Find("Cannon");
 			cannon.rotation = Quaternion.LookRotation(Vector3.forward, shotEnd - cannon.position);
 		}
+
+        public void CreateNewShot(Line line)
+        {
+            Vector2 shotStart = line.Point1;
+            Vector2 shotEnd = line.Point2;
+            shot = Instantiate(shotLinePrefab, shotStart, Quaternion.identity, transform);
+            shot.GetComponent<LineRenderer>().SetPosition(0, shotStart);
+            shot.GetComponent<LineRenderer>().SetPosition(1, shotEnd);
+        }
 	}
 }

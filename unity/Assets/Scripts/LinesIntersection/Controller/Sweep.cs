@@ -20,6 +20,15 @@ namespace CastleCrushers
         }
     }
 
+    public class InvalidInitialGeneralPosition : Exception
+    {
+        public InvalidInitialGeneralPosition(string message)
+        : base(message)
+        {
+        }
+    }
+
+
     public enum EventType {
         INSERT,
         DELETE,
@@ -283,7 +292,7 @@ namespace CastleCrushers
                 bool hasNext = status.FindNextBiggest(ev.StatusItem, out next);
                 if (!status.Delete(ev.StatusItem))
                 {
-                    throw new Exception("Could not delete from status : (");
+                    throw new InvalidInitialGeneralPosition("Could not delete from status : (");
                 }
 
                 if (hasPrev && hasNext)
@@ -300,11 +309,11 @@ namespace CastleCrushers
                 ComparePreEvent = true;
                 if (!status.Delete(left))
                 {
-                    throw new Exception(left + " not deleted." + ((Vector2)left.LineObject.line.Intersect(right.LineObject.line)).x + " - " + ((Vector2)left.LineObject.line.Intersect(right.LineObject.line)).y);
+                    throw new InvalidInitialGeneralPosition(left + " not deleted.");
                 }
                 if (!status.Delete(right))
                 {
-                    throw new Exception(right + " not deleted.");
+                    throw new InvalidInitialGeneralPosition(right + " not deleted.");
                 }
 
                 // Swap

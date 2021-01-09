@@ -16,6 +16,8 @@ namespace CastleCrushers.Tests
             Test4();
             Test5();
             Test6();
+            Debug.LogWarning("Test 7");
+            Test7();
         }
 
         public void Test1()
@@ -27,7 +29,7 @@ namespace CastleCrushers.Tests
             };
 
             ShotSolver solver = new ShotSolver(lst);
-            Assert.AreEqual(solver.GreedyCover(), 1);
+            Assert.AreEqual(solver.GreedyCover().Count, 1);
         }
 
         public void Test2()
@@ -40,7 +42,7 @@ namespace CastleCrushers.Tests
             };
 
             ShotSolver solver = new ShotSolver(lst);
-            Assert.AreEqual(solver.GreedyCover(), 2);
+            Assert.AreEqual(solver.GreedyCover().Count, 2);
         }
 
         public void Test3()
@@ -55,7 +57,7 @@ namespace CastleCrushers.Tests
                 new LineObject(new LineSegment(new Vector2(1,6), new Vector2(9,5)), null)
             };
             ShotSolver solver = new ShotSolver(lines);
-            Assert.AreEqual(solver.GreedyCover(), 1);
+            Assert.AreEqual(solver.GreedyCover().Count, 1);
         }
 
         public void Test4()
@@ -70,7 +72,7 @@ namespace CastleCrushers.Tests
             };
 
             ShotSolver solver = new ShotSolver(lst);
-            Assert.AreEqual(solver.GreedyCover(), 2);
+            Assert.AreEqual(solver.GreedyCover().Count, 2);
         }
 
         public void Test5()
@@ -87,7 +89,7 @@ namespace CastleCrushers.Tests
             };
 
             ShotSolver solver = new ShotSolver(lst);
-            Assert.AreEqual(solver.GreedyCover(), 3);
+            Assert.AreEqual(solver.GreedyCover().Count, 3);
         }
 
         public void Test6()
@@ -104,7 +106,35 @@ namespace CastleCrushers.Tests
             };
 
             ShotSolver solver = new ShotSolver(lst);
-            Assert.AreEqual(solver.GreedyCover(), 2);
+            Assert.AreEqual(solver.GreedyCover().Count, 2);
+        }
+
+        public void Test7()
+        {
+            List<LineSegment> lst = new List<LineSegment>()
+            {
+                new LineSegment(new Vector2(0,0), new Vector2(1,1)),
+                new LineSegment(new Vector2(4,1), new Vector2(6,0)),
+                new LineSegment(new Vector2(2,3), new Vector2(3,2)),
+                new LineSegment(new Vector2(0,3), new Vector2(1,4)),
+                new LineSegment(new Vector2(4,4), new Vector2(5,3)),
+                new LineSegment(new Vector2(6,5), new Vector2(7,4))
+
+            };
+
+            ShotSolver solver = new ShotSolver(lst);
+            for (int i = 0; i < solver.N; i++)
+            {
+                Vector2 e1 = solver.endpoints[2 * i];
+                Vector2 e2 = solver.endpoints[2 * i + 1];
+
+                Vector2 p1 = solver.lines[i].Point1;
+                Vector2 p2 = solver.lines[i].Point2;
+
+                Assert.AreApproximatelyEqual((e1 + e2).x, (p1 + p2).x, 1e-6f);
+                Assert.AreApproximatelyEqual((e1 + e2).y, (p1 + p2).y, 1e-6f);
+            }
+            Assert.AreEqual(solver.GreedyCover().Count, 2);
         }
     }
 }
