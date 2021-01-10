@@ -45,6 +45,8 @@ namespace CastleCrushers {
 
 		// Use this for initialization
 		void Start() {
+			// run tests
+			SweepTest test = new SweepTest();
 
 			if (endless) {
 				GenerateNewLevel(ENDLESS_START);
