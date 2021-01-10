@@ -7,7 +7,7 @@ using System;
 using System.Linq;
 
 namespace CastleCrushers {
-	public class LinesController : MonoBehaviour {
+	public class CastleCrushersController : MonoBehaviour {
 
 		[SerializeField] private List<LinesLevel> levels;
 		private int level = 0;

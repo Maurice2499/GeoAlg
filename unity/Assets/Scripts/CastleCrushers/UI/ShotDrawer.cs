@@ -4,9 +4,9 @@ using Util.Geometry;
 using UnityEngine;
 
 namespace CastleCrushers {
-	public class LinesSegments : MonoBehaviour {
+	public class ShotDrawer : MonoBehaviour {
 
-		[SerializeField] private LinesController controller;
+		[SerializeField] private CastleCrushersController controller;
 
 		[SerializeField] private GameObject shotLinePrefab;
 		[SerializeField] private GameObject intPrefab;
