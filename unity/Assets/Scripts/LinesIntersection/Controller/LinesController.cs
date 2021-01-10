@@ -7,54 +7,6 @@ using System;
 using System.Linq;
 
 namespace CastleCrushers {
-	public class LineObject {
-		public LineSegment line;
-		public GameObject obj;
-        public Vector2 yRange; //x is lower y and y is upper y
-		public int hits = 0;
-
-		public LineObject(LineSegment line, GameObject obj) {
-			this.line = line;
-			this.obj = obj;
-            this.yRange = new Vector2(this.Lowest().y, this.Highest().y);
-		}
-
-		// Changes the highest point.
-		public void NewHighest(Vector2 newTop)
-        {
-			this.line = new LineSegment(newTop, this.Lowest());
-			this.yRange = new Vector2(this.Lowest().y, this.Highest().y);
-		}
-
-        public Vector2 Highest() // Assumes this line is not horizontal
-        {
-            return this.line.Point1.y > this.line.Point2.y ? this.line.Point1 : this.line.Point2;
-        }
-
-        public Vector2 Lowest() // Assumes this line is not horizontal
-        {
-            return this.line.Point1.y < this.line.Point2.y ? this.line.Point1 : this.line.Point2;
-        }
- 
-        public void Break()
-        {
-			this.hits++;
-        }
-
-		public void repair()
-		{
-			if (hits > 0)
-            {
-				this.hits--;
-			}
-		}
-
-		public override string ToString()
-        {
-            return "LO cont " + line.ToString();
-        }
-    }
-
 	public class LinesController : MonoBehaviour {
 
 		[SerializeField] private List<LinesLevel> levels;
@@ -81,7 +33,7 @@ namespace CastleCrushers {
 		public List<LineObject> shots = new List<LineObject>();
 
 		public List<LineObject> walls = new List<LineObject>();
-        
+
 		private const float MIN_WIDTH = -7.8f;
 		private const float MAX_WIDTH = 7.8f;
 		private const float MIN_HEIGHT = -3.5f;
@@ -91,12 +43,12 @@ namespace CastleCrushers {
 		private const int ENDLESS_INCREASE = 1;
 		private const int ENDLESS_MAX = 200;
 
-        // Use this for initialization
-        void Start() {
+		// Use this for initialization
+		void Start() {
 
 			if (endless) {
-                GenerateNewLevel(ENDLESS_START);
-            } else {
+				GenerateNewLevel(ENDLESS_START);
+			} else {
 				LoadLevel(0);
 			}
 
@@ -105,25 +57,22 @@ namespace CastleCrushers {
 
 		public bool CanAddShot() {
 			return shots.Count < maxShots;
-        }
+		}
 
 		public bool IsLevelComplete() {
 			return advanceButton.activeSelf;
-        }
+		}
 
 		public void AddNewShot(LineObject shot) {
 			shots.Add(shot);
-			foreach (LineObject wall in walls)
-			{
-				Vector2? intersection = wall.line.Intersect(shot.line);
-				if (intersection != null)
-				{
+			foreach (LineObject wall in walls) {
+				Vector2? intersection = wall.Intersect(shot);
+				if (intersection != null) {
 					wall.Break();
 				}
 			}
 
-			if (CheckSolution())
-			{
+			if (CheckSolution()) {
 				advanceButton.SetActive(true);
 			}
 
@@ -136,21 +85,19 @@ namespace CastleCrushers {
 				return;
 			}
 
-			float min = Vector3.Distance(shots[0].line.Point1, pos);
-            LineObject closest = shots[0];
+			float min = Vector3.Distance(shots[0].Point1, pos);
+			LineObject closest = shots[0];
 
 			for (int i = 1; i < shots.Count; i++) {
-				if (Vector3.Distance(shots[i].line.Point1, pos) < min) { // Alternatively, closest line: shots[i].line.DistanceToPoint(pos) < min
+				if (Vector3.Distance(shots[i].Point1, pos) < min) { // Alternatively, closest line: shots[i].line.DistanceToPoint(pos) < min
 					closest = shots[i];
-					min = shots[i].line.DistanceToPoint(pos);
+					min = shots[i].DistanceToPoint(pos);
 				}
 			}
 
-			foreach (LineObject wall in walls)
-			{
-				Vector2? intersection = wall.line.Intersect(closest.line);
-				if (intersection != null)
-				{
+			foreach (LineObject wall in walls) {
+				Vector2? intersection = wall.Intersect(closest);
+				if (intersection != null) {
 					wall.repair();
 				}
 			}
@@ -168,7 +115,7 @@ namespace CastleCrushers {
 			if (endless) {
 				// endless mode
 				GenerateNewLevel(Mathf.Min(ENDLESS_START + level * ENDLESS_INCREASE, ENDLESS_MAX));
-            } else if (level >= levels.Count) {
+			} else if (level >= levels.Count) {
 				// not endless mode and all levels completed
 				UnityEngine.SceneManagement.SceneManager.LoadScene("linesVictory");
 			} else {
@@ -196,131 +143,111 @@ namespace CastleCrushers {
 			LinesLevel level = levels[id];
 			maxShots = level.maxShots;
 			for (int i = 0; i < level.startPoints.Count; i++) {
-				GameObject newWall = Instantiate(wallPrefab, null);
+				GameObject newWall = Instantiate(wallPrefab, wallObjects);
 				newWall.transform.Find("StartCastle").position = level.startPoints[i];
 				newWall.transform.Find("EndCastle").position = level.endPoints[i];
 				newWall.GetComponent<LineRenderer>().SetPosition(0, level.startPoints[i]);
 				newWall.GetComponent<LineRenderer>().SetPosition(1, level.endPoints[i]);
 
-				walls.Add(new LineObject(new LineSegment(level.startPoints[i], level.endPoints[i]), newWall));
-            }
+				walls.Add(new LineObject(level.startPoints[i], level.endPoints[i], newWall));
+			}
 		}
 
 		public void GenerateNewLevel(int maxWalls) {
 			ClearLevel();
-           
+
 			// Generator code
 			walls = new List<LineObject>();
 
-            int N = maxWalls;
-            while (N > 0)
-            {
-                Vector2 position1 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
-                Vector2 position2 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
+			int N = maxWalls;
+			while (N > 0) {
+				Vector2 position1 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
+				Vector2 position2 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
 
-                LineSegment newLine = new LineSegment(position1, position2);
+				LineObject newLine = new LineObject(position1, position2);
 
-                if (newLine.IsHorizontal == false)
-                {
-                    walls.Add(new LineObject(newLine, null));
-                    N -= 1;
-                }
-            }
-
-            // Remove all too short walls
-            walls.RemoveAll(item => item.line.Magnitude < MIN_WALL_SIZE);
-
-            DownwardSweepLine sweep = new DownwardSweepLine(walls);
-            List<Intersection> intersections = sweep.Run();
-
-            // Split intersections into multiple walls doesnt always work. If there are many walls we cant just simply split
-            foreach (Intersection intersection in intersections)
-            {
-                if (intersection.one.hits > 0 || intersection.two.hits > 0)
-                {
-                    continue;
-                }
-                else if (intersection.one.line.Magnitude < 2 * MIN_WALL_SIZE || intersection.two.line.Magnitude < 2 * MIN_WALL_SIZE)
-                {
-                    if (intersection.one.line.Magnitude < 2 * MIN_WALL_SIZE)
-                    {
-                        intersection.one.hits += 1;
-                    }
-                    else
-                    {
-                        intersection.two.hits += 1;
-                    }
-                }
-                else
-                {
-                    Vector2 point = (Vector2)intersection.two.line.Intersect(intersection.one.line);
-                    LineSegment oneTophalf = new LineSegment(intersection.one.Highest(), point);
-                    if (oneTophalf.Magnitude > MIN_WALL_SIZE)
-                    {
-                        LineObject wallOne = new LineObject(oneTophalf, null);
-                        walls.Add(wallOne);
-                    }
-
-                    LineSegment twoTophalf = new LineSegment(intersection.two.Highest(), point);
-                    if (twoTophalf.Magnitude > MIN_WALL_SIZE)
-                    {
-                        LineObject wallTwo = new LineObject(twoTophalf, null);
-                        walls.Add(wallTwo);
-                    }
-
-                    intersection.one.NewHighest(point);
-                    intersection.two.NewHighest(point);
-
-                    if (intersection.one.line.Magnitude < MIN_WALL_SIZE)
-                    {
-                        intersection.one.hits += 1;
-                    }
-                    if (intersection.two.line.Magnitude < MIN_WALL_SIZE)
-                    {
-                        intersection.two.hits += 1;
-                    }
-                }
+				if (newLine.IsHorizontal == false) {
+					walls.Add(newLine);
+					N -= 1;
+				}
 			}
 
-            walls.RemoveAll(item => item.hits > 0);
+			// Remove all too short walls
+			walls.RemoveAll(item => item.Magnitude < MIN_WALL_SIZE);
 
-            // Remove all too short walls
-            walls.RemoveAll(item => item.line.Magnitude < MIN_WALL_SIZE);
+			DownwardSweepLine sweep = new DownwardSweepLine(walls);
+			List<Intersection> intersections = sweep.Run();
+
+			// Split intersections into multiple walls doesnt always work. If there are many walls we cant just simply split
+			foreach (Intersection intersection in intersections) {
+				if (intersection.one.hits > 0 || intersection.two.hits > 0) {
+					continue;
+				} else if (intersection.one.Magnitude < 2 * MIN_WALL_SIZE || intersection.two.Magnitude < 2 * MIN_WALL_SIZE) {
+					if (intersection.one.Magnitude < 2 * MIN_WALL_SIZE) {
+						intersection.one.hits += 1;
+					} else {
+						intersection.two.hits += 1;
+					}
+				} else {
+					Vector2 point = (Vector2)intersection.two.Intersect(intersection.one);
+					LineObject oneTophalf = new LineObject(intersection.one.Highest(), point);
+					if (oneTophalf.Magnitude > MIN_WALL_SIZE) {
+						walls.Add(oneTophalf);
+					}
+
+					LineObject twoTophalf = new LineObject(intersection.two.Highest(), point);
+					if (twoTophalf.Magnitude > MIN_WALL_SIZE) {
+						walls.Add(twoTophalf);
+					}
+
+					intersection.one.NewHighest(point);
+					intersection.two.NewHighest(point);
+
+					if (intersection.one.Magnitude < MIN_WALL_SIZE) {
+						intersection.one.hits += 1;
+					}
+					if (intersection.two.Magnitude < MIN_WALL_SIZE) {
+						intersection.two.hits += 1;
+					}
+				}
+			}
+
+			walls.RemoveAll(item => item.hits > 0);
+
+			// Remove all too short walls
+			walls.RemoveAll(item => item.Magnitude < MIN_WALL_SIZE);
 
 
-            // Add GameObject to the remaining walls
-            float sizeFactor = 0.8f * (float)Math.Exp(-0.03 * ((float)walls.Count)) + 0.01f;
-            foreach (LineObject line in walls)
-            {
-                Vector2 position1 = line.line.Point1;
-                Vector2 position2 = line.line.Point2;
+			// Add GameObject to the remaining walls
+			float sizeFactor = 0.8f * (float)Math.Exp(-0.03 * ((float)walls.Count)) + 0.01f;
+			foreach (LineObject line in walls) {
+				Vector2 position1 = line.Point1;
+				Vector2 position2 = line.Point2;
 
-                GameObject newWall = Instantiate(wallPrefab, wallObjects);
-                newWall.transform.Find("StartCastle").position = position1;
-                newWall.transform.Find("EndCastle").position = position2;
-                newWall.GetComponent<LineRenderer>().SetPosition(0, position1);
-                newWall.GetComponent<LineRenderer>().SetPosition(1, position2);
+				GameObject newWall = Instantiate(wallPrefab, wallObjects);
+				newWall.transform.Find("StartCastle").position = position1;
+				newWall.transform.Find("EndCastle").position = position2;
+				newWall.GetComponent<LineRenderer>().SetPosition(0, position1);
+				newWall.GetComponent<LineRenderer>().SetPosition(1, position2);
 
-                newWall.transform.Find("StartCastle").localScale = new Vector3(sizeFactor, sizeFactor, sizeFactor);
-                newWall.transform.Find("EndCastle").localScale = new Vector3(sizeFactor, sizeFactor, sizeFactor);
-                newWall.GetComponent<LineRenderer>().startWidth = 0.4f * sizeFactor;
-                newWall.GetComponent<LineRenderer>().endWidth = 0.4f * sizeFactor;
+				newWall.transform.Find("StartCastle").localScale = new Vector3(sizeFactor, sizeFactor, sizeFactor);
+				newWall.transform.Find("EndCastle").localScale = new Vector3(sizeFactor, sizeFactor, sizeFactor);
+				newWall.GetComponent<LineRenderer>().startWidth = 0.4f * sizeFactor;
+				newWall.GetComponent<LineRenderer>().endWidth = 0.4f * sizeFactor;
 
-                line.obj = newWall;
-            }
+				line.obj = newWall;
+			}
 
-            // Use ShotSolver to find the budget of shots
-            ShotSolver shotSolver = new ShotSolver(walls);
+			// Use ShotSolver to find the budget of shots
+			ShotSolver shotSolver = new ShotSolver(walls);
 
-            List<Line> greedyShots = shotSolver.GreedyCover();
-            maxShots = greedyShots.Count;
+			List<Line> greedyShots = shotSolver.GreedyCover();
+			maxShots = greedyShots.Count;
 		}
 
-				// Updates textures of walls according to whether they have been shot or not.
-		private void UpdateWallDestroyed()
-        {
-            foreach (LineObject wall in walls)
-			{
+		// Updates textures of walls according to whether they have been shot or not.
+		private void UpdateWallDestroyed() {
+			foreach (LineObject wall in walls) {
 				if (wall.hits > 0) {
 					wall.obj.GetComponent<Renderer>().material = wallDestroyedMat;
 					wall.obj.transform.Find("StartCastle").GetComponent<SpriteRenderer>().sprite = castleDestroyedSprite;
@@ -341,10 +268,54 @@ namespace CastleCrushers {
 				}
 			}
 			return true;
-		}   
+		}
 
 		public void UpdateRemainingShots() {
 			remaining.text = "Shots: " + shots.Count + "/" + maxShots;
+		}
+	}
+
+	public class LineObject : LineSegment {
+		public GameObject obj;
+		public int hits = 0;
+
+		public LineObject(Vector2 point1, Vector2 point2, GameObject obj = null) : base(point1, point2) {
+			this.obj = obj;
+		}
+
+		// Changes the highest point.
+		public void NewHighest(Vector2 newTop) {
+			Point1 = newTop;
+			Point2 = Lowest();
+
+			// explicitly calculate variables that are most used
+			XInterval = new FloatInterval(Point1.x, Point2.x);
+			YInterval = new FloatInterval(Point1.y, Point2.y);
+			Line = new Line(Point1, Point2);
+		}
+
+		public Vector2 Highest() // Assumes this line is not horizontal
+		{
+			return Point1.y > Point2.y ? Point1 : Point2;
+		}
+
+		public Vector2 Lowest() // Assumes this line is not horizontal
+		{
+			return Point1.y < Point2.y ? Point1 : Point2;
+		}
+
+		public void Break() {
+			hits++;
+		}
+
+		public void repair() {
+			if (hits > 0) {
+				hits--;
+			}
+		}
+
+		public override string ToString() {
+			return "LO cont " + ToString();
 		}
 	}
 }

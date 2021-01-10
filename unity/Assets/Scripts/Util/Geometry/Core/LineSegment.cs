@@ -11,8 +11,8 @@
     /// </summary>
     public class LineSegment : IEquatable<LineSegment>
     {
-        public Vector2 Point1 { get; private set; }
-        public Vector2 Point2 { get; private set; }
+        public Vector2 Point1 { get; protected set; }
+        public Vector2 Point2 { get; protected set; }
 
         /// <summary>
         /// Returns point in the middle of the endpoints.
@@ -22,7 +22,7 @@
         /// <summary>
         /// Gives the corresponding line through the two points.
         /// </summary>
-        public Line Line { get; private set; }
+        public Line Line { get; protected set; }
 
         /// <summary>
         /// A perpendicular line that crosses the segment in the midpoint.
@@ -59,12 +59,12 @@
         /// <summary>
         /// Interval in the x-dimension of the segment.
         /// </summary>
-        public FloatInterval XInterval { get; private set; }
+        public FloatInterval XInterval { get; protected set; }
 
         /// <summary>
         /// Interval in the y-dimension of the segment.
         /// </summary>
-        public FloatInterval YInterval { get; private set; }
+        public FloatInterval YInterval { get; protected set; }
 
         public LineSegment(Vector2 a_point1, Vector2 a_point2)
         {

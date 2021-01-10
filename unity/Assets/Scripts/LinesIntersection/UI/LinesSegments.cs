@@ -32,8 +32,7 @@ namespace CastleCrushers {
 				if (shotEnd.Equals(shotStart)) {
 					Destroy(shot);
 				} else {
-					LineSegment line = new LineSegment(shotStart, shotEnd);
-                    LineObject newShot = new LineObject(line, shot);
+                    LineObject newShot = new LineObject(shotStart, shotEnd, shot);
                     controller.AddNewShot(newShot);
 				}
 				shot = null;

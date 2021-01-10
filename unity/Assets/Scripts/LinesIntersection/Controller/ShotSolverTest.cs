@@ -49,12 +49,12 @@ namespace CastleCrushers.Tests
         {
             List<LineObject> lines = new List<LineObject>()
             {
-                new LineObject(new LineSegment(new Vector2(0,0), new Vector2(10,9)), null),
-                new LineObject(new LineSegment(new Vector2(2,1), new Vector2(3,8)), null),
-                new LineObject(new LineSegment(new Vector2(3,9), new Vector2(6,1)), null),
-                new LineObject(new LineSegment(new Vector2(1,2), new Vector2(4,8)), null),
-                new LineObject(new LineSegment(new Vector2(5,5), new Vector2(6,8)), null),
-                new LineObject(new LineSegment(new Vector2(1,6), new Vector2(9,5)), null)
+                new LineObject(new Vector2(0,0), new Vector2(10,9)),
+                new LineObject(new Vector2(2,1), new Vector2(3,8)),
+                new LineObject(new Vector2(3,9), new Vector2(6,1)),
+                new LineObject(new Vector2(1,2), new Vector2(4,8)),
+                new LineObject(new Vector2(5,5), new Vector2(6,8)),
+                new LineObject(new Vector2(1,6), new Vector2(9,5))
             };
             ShotSolver solver = new ShotSolver(lines);
             Assert.AreEqual(solver.GreedyCover().Count, 1);

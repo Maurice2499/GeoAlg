@@ -56,7 +56,7 @@ namespace CastleCrushers
                 }
                 else //if (this.IsIntersection)
                 {
-                    return (Vector2)StatusItem.LineObject.line.Intersect(IntersectingStatusItem.LineObject.line);
+                    return (Vector2)StatusItem.LineObject.Intersect(IntersectingStatusItem.LineObject);
                 }
             }
         }
@@ -160,29 +160,29 @@ namespace CastleCrushers
             // Zero             This instance occurs in the same position in the sort order as other.
             // Greater than 0   This instance follows other in the sort order.
             float x_one;
-            if (this.LineObject.line.IsVertical)
+            if (this.LineObject.IsVertical)
             {
-                x_one = this.LineObject.line.Point1.x;
+                x_one = this.LineObject.Point1.x;
             } else
             {
-                x_one = this.LineObject.line.X(DownwardSweepLine.Line.Point1.y);
+                x_one = this.LineObject.X(DownwardSweepLine.Line.Point1.y);
             }
             float x_two;
-            if (other.LineObject.line.IsVertical)
+            if (other.LineObject.IsVertical)
             {
-                x_two = other.LineObject.line.Point1.x;
+                x_two = other.LineObject.Point1.x;
             }
             else
             {
-                x_two = other.LineObject.line.X(DownwardSweepLine.Line.Point1.y);
+                x_two = other.LineObject.X(DownwardSweepLine.Line.Point1.y);
             }
 
             // If points are close, it matters to look above or below the sweep line.
             // Or <1e-4
-            Vector2? intersect1 = this.LineObject.line.Intersect(other.LineObject.line);
+            Vector2? intersect1 = this.LineObject.Intersect(other.LineObject);
             if (intersect1 != null)
             {
-                Vector2? intersect2 = other.LineObject.line.Intersect(this.LineObject.line);
+                Vector2? intersect2 = other.LineObject.Intersect(this.LineObject);
                 if (intersect2 != null)
                 {
                     if (((Vector2)intersect1).y == DownwardSweepLine.Line.Point1.y || ((Vector2)intersect2).y == DownwardSweepLine.Line.Point1.y)
@@ -191,13 +191,13 @@ namespace CastleCrushers
                         {
                             // TODO if slope is undefined (one of the two is vertical).
                             float min = Math.Min(LineObject.Highest().y, other.LineObject.Highest().y);
-                            return LineObject.line.X(min) > other.LineObject.line.X(min) ? 1 : -1;
+                            return LineObject.X(min) > other.LineObject.X(min) ? 1 : -1;
                         }
                         else
                         {
                             // TODO if slope is undefined (one of the two is vertical).
                             float max = Math.Max(LineObject.Lowest().y, other.LineObject.Lowest().y);
-                            return LineObject.line.X(max) > other.LineObject.line.X(max) ? 1 : -1;
+                            return LineObject.X(max) > other.LineObject.X(max) ? 1 : -1;
                         }
                     }
                 }
@@ -343,17 +343,17 @@ namespace CastleCrushers
         {
             //Debug.LogWarning("left: " + left.LineObject.line.Line.Slope);
             //Debug.LogWarning("right: " + right.LineObject.line.Line.Slope);
-            Vector2? intersect = left.LineObject.line.Intersect(right.LineObject.line);
+            Vector2? intersect = left.LineObject.Intersect(right.LineObject);
             if (intersect != null)
             {
-                Vector2? otherIntersect = right.LineObject.line.Intersect(left.LineObject.line);
+                Vector2? otherIntersect = right.LineObject.Intersect(left.LineObject);
                 if (intersect != null)
                 {
                     float y = ((Vector2)intersect).y;
                     if (y < Line.Point1.y)
                     {
-                        if (y > left.LineObject.yRange.x && y < left.LineObject.yRange.y
-                            && y > right.LineObject.yRange.x && y < right.LineObject.yRange.y)
+                        if (y > left.LineObject.YInterval.Min && y < left.LineObject.YInterval.Max
+                            && y > right.LineObject.YInterval.Min && y < right.LineObject.YInterval.Max)
                         {
                             SweepEvent ev = new SweepEvent(EventType.INTERSECT);
                             ev.StatusItem = left;

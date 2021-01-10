@@ -23,8 +23,8 @@
         {
             List<LineObject> lines = new List<LineObject>()
             {
-                new LineObject(new LineSegment(new Vector2(3,1), new Vector2(1,3)), null),
-                new LineObject(new LineSegment(new Vector2(1.1f,1.1f), new Vector2(2.9f,2.9f)), null)
+                new LineObject(new Vector2(3,1), new Vector2(1,3)),
+                new LineObject(new Vector2(1.1f,1.1f), new Vector2(2.9f,2.9f)),
             };
             DownwardSweepLine sweep = new DownwardSweepLine(lines);
             Assert.AreEqual(sweep.Run().Count, 1);
@@ -33,8 +33,8 @@
         {
             List<LineObject> lines = new List<LineObject>()
             {
-                new LineObject(new LineSegment(new Vector2(1,3), new Vector2(3,1)), null),
-                new LineObject(new LineSegment(new Vector2(1.1f,1.3f), new Vector2(2.9f,2.7f)), null)
+                new LineObject(new Vector2(1,3), new Vector2(3,1)),
+                new LineObject(new Vector2(1.1f,1.3f), new Vector2(2.9f,2.7f)),
             };
             DownwardSweepLine sweep = new DownwardSweepLine(lines);
             Assert.AreEqual(sweep.Run().Count, 1);
@@ -44,9 +44,9 @@
         {
             List<LineObject> lines = new List<LineObject>()
             {
-                new LineObject(new LineSegment(new Vector2(1,3), new Vector2(3,2)), null),
-                new LineObject(new LineSegment(new Vector2(1,2), new Vector2(3,1)), null),
-                new LineObject(new LineSegment(new Vector2(1.1f,1.1f), new Vector2(2.9f,2.9f)), null)
+                new LineObject(new Vector2(1,3), new Vector2(3,2)),
+                new LineObject(new Vector2(1,2), new Vector2(3,1)),
+                new LineObject(new Vector2(1.1f,1.1f), new Vector2(2.9f,2.9f)),
             };
             DownwardSweepLine sweep = new DownwardSweepLine(lines);
             Assert.AreEqual(sweep.Run().Count, 2);
@@ -61,7 +61,7 @@
                 List<LineObject> lines = new List<LineObject>();
                 for (int i = 0; i <= N; i++)
                 {
-                    lines.Add(new LineObject(new LineSegment(new Vector2(i, 0), new Vector2(10 - i, 1)), null));
+                    lines.Add(new LineObject(new Vector2(i, 0), new Vector2(10 - i, 1)));
                 }
                 DownwardSweepLine sweep = new DownwardSweepLine(lines);
                 Assert.AreEqual(sweep.Run().Count, (N * (N+1)) / 2);
@@ -72,12 +72,12 @@
         {
             List<LineObject> lines = new List<LineObject>()
             {
-                new LineObject(new LineSegment(new Vector2(0,0), new Vector2(10,9)), null),
-                new LineObject(new LineSegment(new Vector2(2,1), new Vector2(3,8)), null),
-                new LineObject(new LineSegment(new Vector2(3,9), new Vector2(6,1)), null),
-                new LineObject(new LineSegment(new Vector2(1,2), new Vector2(4,8)), null),
-                new LineObject(new LineSegment(new Vector2(5,5), new Vector2(6,8)), null),
-                new LineObject(new LineSegment(new Vector2(1,6), new Vector2(9,5)), null)
+                new LineObject(new Vector2(0,0), new Vector2(10,9)),
+                new LineObject(new Vector2(2,1), new Vector2(3,8)),
+                new LineObject(new Vector2(3,9), new Vector2(6,1)),
+                new LineObject(new Vector2(1,2), new Vector2(4,8)),
+                new LineObject(new Vector2(5,5), new Vector2(6,8)),
+                new LineObject(new Vector2(1,6), new Vector2(9,5)),
             };
             DownwardSweepLine sweep = new DownwardSweepLine(lines);
             Assert.AreEqual(sweep.Run().Count, 9);
@@ -102,9 +102,9 @@
                     Vector2 position1 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
                     Vector2 position2 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
 
-                    LineSegment newLine = new LineSegment(position1, position2);
+                    LineObject newLine = new LineObject(position1, position2);
 
-                    lines.Add(new LineObject(newLine, null));
+                    lines.Add(newLine);
                 }
 
                 DownwardSweepLine sweep = new DownwardSweepLine(lines);

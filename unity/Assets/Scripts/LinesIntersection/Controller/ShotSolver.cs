@@ -30,7 +30,7 @@ namespace CastleCrushers
             List<LineSegment> list = new List<LineSegment>();
             foreach (LineObject lineObject in lineObjects)
             {
-                list.Add(lineObject.line);
+                list.Add(lineObject);
             }
             this.lines = list.ToArray();
             Init();
