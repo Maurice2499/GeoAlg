@@ -25,6 +25,7 @@ namespace CastleCrushers {
 		[SerializeField] private GameObject advanceButton;
 
 		[SerializeField] private Transform eventObjects;
+		[SerializeField] private Transform solverShotObjects;
 
 		[SerializeField] private bool endless;
 
@@ -35,7 +36,6 @@ namespace CastleCrushers {
 		public List<LineObject> shots = new List<LineObject>();
 
 		public List<LineObject> walls = new List<LineObject>();
-		public List<LineObject> eventWalls = new List<LineObject>();
 
 		private const float MIN_WIDTH = -7.8f;
 		private const float MAX_WIDTH = 7.8f;
@@ -47,6 +47,7 @@ namespace CastleCrushers {
 		private const int ENDLESS_MAX = 80;
 
 		private DownwardSweepLine sweep;
+		private ShotSolver shotSolver;
 
 		// Use this for initialization
 		void Start() {
@@ -144,11 +145,11 @@ namespace CastleCrushers {
 			walls = new List<LineObject>();
 		}
 
-		public void toggleEvents() {
+		public void toggleEventsVis() {
 			eventObjects.gameObject.SetActive(!eventObjects.gameObject.activeSelf);
         }
 
-		private void updateEvents() {
+		private void updateEventsVis(List<LineObject> eventWalls, List<SweepEvent> eventPoints) {
 			if (sweep == null) {
 				return;
             }
@@ -158,30 +159,44 @@ namespace CastleCrushers {
 				Destroy(child.gameObject);
             }
 
-			List<SweepEvent> events = sweep.producedEvents;
-			foreach (SweepEvent ev in events) {
-				if (ev.EventType == EventType.INTERSECT) {
-					continue;
-                } else {
-					Color color = Color.green;
-					if (ev.EventType == EventType.DELETE) {
-						color = Color.red;
-                    }
-					drawLine(new Vector3(ev.Pos.x - 0.1f, ev.Pos.y, -1),
-						new Vector3(ev.Pos.x + 0.1f, ev.Pos.y, -1),
-						0.2f,
-						color,
-						eventObjects);
+			foreach (SweepEvent ev in eventPoints) {
+				Color color = Color.green; // Default: insert
+				if (ev.EventType == EventType.DELETE) {
+					color = Color.red;
+				} else if (ev.EventType == EventType.INTERSECT) {
+					color = Color.blue;
                 }
+				drawLine(new Vector3(ev.Pos.x - 0.1f, ev.Pos.y, -3),
+					new Vector3(ev.Pos.x + 0.1f, ev.Pos.y, -3),
+					0.2f,
+					color,
+					eventObjects);
 			}
 
 			foreach (LineObject wall in eventWalls) {
-				drawLine(new Vector3(wall.Point1.x, wall.Point1.y, -1),
-					new Vector3(wall.Point2.x, wall.Point2.y, -1),
+				drawLine(new Vector3(wall.Point1.x, wall.Point1.y, -2),
+					new Vector3(wall.Point2.x, wall.Point2.y, -2),
 					0.05f,
 					Color.yellow,
 					eventObjects);
 			}
+        }
+
+		public void toggleSolutionVis() {
+			solverShotObjects.gameObject.SetActive(!solverShotObjects.gameObject.activeSelf);
+		}
+		private void updateSolverVis(List<Line> lines) {
+			foreach (Transform shot in solverShotObjects) {
+				Destroy(shot.gameObject);
+			}
+			foreach (Line line in lines) {
+				Vector2 dir = (line.Point2 - line.Point1).normalized;
+				Vector3 start = line.Point1 - 30 * dir;
+				Vector3 end = line.Point1 + 30 * dir;
+				start.z = -1;
+				end.z = -1;
+				drawLine(start, end, 0.1f, Color.magenta, solverShotObjects);
+            }
         }
 
 		private void drawLine(Vector3 start, Vector3 end, float width, Color color, Transform parent) {
@@ -214,10 +229,10 @@ namespace CastleCrushers {
 
 		public void GenerateNewLevel(int maxWalls) {
 			ClearLevel();
-            
-            // Generator code
-            walls = new List<LineObject>();
-			eventWalls = new List<LineObject>();
+
+			// Generator code
+			walls = new List<LineObject>();
+			List<LineObject> eventWalls = new List<LineObject>();
 
 			int N = maxWalls;
 			while (N > 0) {
@@ -241,6 +256,16 @@ namespace CastleCrushers {
 
 			sweep = new DownwardSweepLine(walls);
 			List<Intersection> intersections = sweep.Run();
+
+			List<SweepEvent> eventPoints = new List<SweepEvent>();
+			foreach (SweepEvent ev in sweep.producedEvents) {
+				SweepEvent copy = new SweepEvent(ev.EventType); // deep copy
+				copy.StatusItem = new StatusItem(new LineObject(ev.StatusItem.LineObject.Point1, ev.StatusItem.LineObject.Point2));
+				if (ev.IntersectingStatusItem != null) {
+					copy.IntersectingStatusItem = new StatusItem(new LineObject(ev.IntersectingStatusItem.LineObject.Point1, ev.IntersectingStatusItem.LineObject.Point2));
+				}
+				eventPoints.Add(copy);
+            }
 
 			// Split intersections into multiple walls doesnt always work. If there are many walls we cant just simply split
 			foreach (Intersection intersection in intersections) {
@@ -303,11 +328,12 @@ namespace CastleCrushers {
 			}
 
 			// Use ShotSolver to find the budget of shots
-			ShotSolver shotSolver = new ShotSolver(walls);
+			shotSolver = new ShotSolver(walls);
 
 			List<Line> greedyShots = shotSolver.GreedyCover();
 			maxShots = greedyShots.Count;
-			updateEvents();
+			updateEventsVis(eventWalls, eventPoints);
+			updateSolverVis(greedyShots);
 		}
 
 		// Updates textures of walls according to whether they have been shot or not.
