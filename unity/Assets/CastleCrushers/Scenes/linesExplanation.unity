@@ -265,9 +265,9 @@ Prefab:
         Positioning artillery is done by click-drag-release of the left mouse button.
         Removing artillery can be done with the right mouse button.
 
-
-        Additionally, you can press ''s'' to view a solution in endless mode, or press
-        ''i'' to view the events.'
+        If you need help in endless mode, you can press ''s'' to view a solution.
+        Additionally, you can press ''space'' to generate a new level, or ''i'' to
+        visualize the events of the vertical sweep.'
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 47375d1ad9de78947b5dddba6bf6a125, type: 2}
