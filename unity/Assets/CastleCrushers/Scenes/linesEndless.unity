@@ -122,6 +122,7 @@ GameObject:
   m_Component:
   - component: {fileID: 188652831}
   - component: {fileID: 188652832}
+  - component: {fileID: 188652833}
   m_Layer: 0
   m_Name: CastleCrushers
   m_TagString: Untagged
@@ -144,6 +145,7 @@ Transform:
   - {fileID: 2074432952}
   - {fileID: 642996244}
   - {fileID: 758923881}
+  - {fileID: 2094203786}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -169,7 +171,19 @@ MonoBehaviour:
   wallDestroyedMat: {fileID: 2100000, guid: abf1677ee566d2a4d9d47cd3a4f72c4f, type: 2}
   remaining: {fileID: 2125958981}
   advanceButton: {fileID: 878940126}
+  eventObjects: {fileID: 2094203786}
   endless: 1
+--- !u!114 &188652833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 188652830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b566c1b3c3f260b409a0dcf2e910c4b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &642996243
 GameObject:
   m_ObjectHideFlags: 0
@@ -993,6 +1007,34 @@ MonoBehaviour:
   intPrefab: {fileID: 1340168073398340, guid: 9ec62d8f5833c3249b3cd1f05627848d, type: 2}
   intObjs: {fileID: 758923881}
   drawSkulls: 0
+--- !u!1 &2094203785
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2094203786}
+  m_Layer: 0
+  m_Name: Events
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2094203786
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2094203785}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 188652831}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2125958981 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 11426352, guid: 1115d4335193dd643963c561dd1f1b1d,

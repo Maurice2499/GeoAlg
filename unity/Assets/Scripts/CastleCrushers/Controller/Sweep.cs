@@ -56,7 +56,7 @@ namespace CastleCrushers
                 }
                 else //if (this.IsIntersection)
                 {
-                    return (Vector2)StatusItem.LineObject.Intersect(IntersectingStatusItem.LineObject);
+                    return (Vector2) StatusItem.LineObject.Intersect(IntersectingStatusItem.LineObject);
                 }
             }
         }
@@ -225,6 +225,8 @@ namespace CastleCrushers
 
         private List<Intersection> intersections;
 
+        public List<SweepEvent> producedEvents = new List<SweepEvent>();
+
         public DownwardSweepLine(List<LineObject> lines)
         {
             this.lines = lines;
@@ -262,6 +264,9 @@ namespace CastleCrushers
 
         public new void HandleEvent(IBST<SweepEvent> events, IBST<StatusItem> status, SweepEvent ev)
         {
+            // keep track of added events for visualization
+            producedEvents.Add(ev);
+
             if (ev.IsStart)
             {
                 ComparePreEvent = true;
