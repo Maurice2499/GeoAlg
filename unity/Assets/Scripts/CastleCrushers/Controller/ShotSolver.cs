@@ -51,20 +51,33 @@ namespace CastleCrushers
 
         public void CreateSets()
         {
-            for (int i = 0; i < 2 * lines.Length; i++)
+            for (int i = 0; i < 2 * N; i++)
             {
-                for (int j = i + 2 - (i%2); j < 2 * lines.Length; j++)
+                for (int j = i + 2 - (i%2); j < 2 * N; j++)
                 {
 
                     Line PossibleShot = new Line(endpoints[i], endpoints[j]);
-
-                    for (int k = 0; k < lines.Length; k++)
+                    
+                    for (int k = 0; k < N; k++)
                     {
-                        // Exlude line through endpoints
-                        sets[i, j, k] = (lines[k].IntersectProper(PossibleShot) != null);
+                        // Exlude line through endpoints if it is ~parallel
+                        
+                        if (k == i/2 || k == j/2)
+                        {
+                            if (lines[k].Line.IsParallel(PossibleShot))
+                            {
+                                sets[i, j, k] = false;
+                            }
+                            else
+                            {
+                                sets[i, j, k] = true;
+                            }
+                        }
+                        else
+                        {
+                            sets[i, j, k] = (lines[k].IntersectProper(PossibleShot) != null);
+                        }
                     }
-                    sets[i, j, i / 2] = true;
-                    sets[i, j, j / 2] = true;
                 }
             }
         }
@@ -130,7 +143,15 @@ namespace CastleCrushers
                 }
                 else
                 {
-                    return new List<Line>() { new Line(endpoints[0], endpoints[2]) };
+                    Line line = new Line(endpoints[0], endpoints[2]);
+                    if (this.lines[0].Line.IsParallel(line))
+                    {
+                        return new List<Line>() { lines[0].Bissector, lines[1].Bissector };
+                    }
+                    else
+                    {
+                        return new List<Line>() { new Line(endpoints[0], endpoints[2]) };
+                    }
                 }
             }
 
@@ -146,7 +167,7 @@ namespace CastleCrushers
                     counts[i, j] = 0;
                     for (int k = 0; k < N; k++)
                     {
-                        if (k == i/2 || k == j/2 || sets[i, j, k] == true)
+                        if (sets[i, j, k] == true)
                         {
                             counts[i, j] += 1;
                         }
@@ -164,7 +185,7 @@ namespace CastleCrushers
             {
                 shots += 1;
                 x -= 1;
-                
+
                 Index highest = GetHighestIndex(counts);
                 int i = highest.i;
                 int j = highest.j;
@@ -184,6 +205,7 @@ namespace CastleCrushers
                 }
 
                 shotLines.Add(new Line(endpoints[i], endpoints[j]));
+
                 for (int k = 0; k < N; k++)
                 {
                     if (covered[k] == false && sets[i, j, k] == true)
@@ -193,6 +215,7 @@ namespace CastleCrushers
                         {
                             for (int b = a + 2 - (a % 2); b < 2 * N; b++)
                             {
+
                                 if (sets[a, b, k] == true)
                                 {
                                     counts[a, b] -= 1;
@@ -202,7 +225,6 @@ namespace CastleCrushers
                     }
                 }
             }
-
             return shotLines;
         }
     }

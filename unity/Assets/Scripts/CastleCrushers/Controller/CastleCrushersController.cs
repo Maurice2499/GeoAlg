@@ -44,6 +44,7 @@ namespace CastleCrushers {
 
 		private const int ENDLESS_START = 3;
 		private const int ENDLESS_INCREASE = 1;
+
 		private const int ENDLESS_MAX = 25;
 
 		private DownwardSweepLine sweep;
