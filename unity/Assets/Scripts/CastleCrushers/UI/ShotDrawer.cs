@@ -39,9 +39,6 @@ namespace CastleCrushers {
 			} else if (Input.GetMouseButtonDown(1)) {
 				controller.RemoveShot(Camera.main.ScreenToWorldPoint(Input.mousePosition + 10 * Vector3.forward));
 			}
-			if (Input.GetKeyDown(KeyCode.Space)) {
-				controller.NextLevel();
-			}
 		}
 
 		public void CreateNewShot() {

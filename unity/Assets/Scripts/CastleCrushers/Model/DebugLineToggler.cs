@@ -18,6 +18,9 @@ namespace CastleCrushers {
 			if (Input.GetKeyDown(KeyCode.S)) {
 				controller.toggleSolutionVis();
             }
+			if (Input.GetKeyDown(KeyCode.Space)) {
+				controller.NextLevel();
+			}
 		}
 	}
 }
