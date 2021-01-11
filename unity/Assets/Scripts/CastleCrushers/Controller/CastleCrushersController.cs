@@ -44,7 +44,7 @@ namespace CastleCrushers {
 
 		private const int ENDLESS_START = 3;
 		private const int ENDLESS_INCREASE = 1;
-		private const int ENDLESS_MAX = 200;
+		private const int ENDLESS_MAX = 80;
 
 		private DownwardSweepLine sweep;
 
@@ -214,9 +214,9 @@ namespace CastleCrushers {
 
 		public void GenerateNewLevel(int maxWalls) {
 			ClearLevel();
-
-			// Generator code
-			walls = new List<LineObject>();
+            
+            // Generator code
+            walls = new List<LineObject>();
 			eventWalls = new List<LineObject>();
 
 			int N = maxWalls;

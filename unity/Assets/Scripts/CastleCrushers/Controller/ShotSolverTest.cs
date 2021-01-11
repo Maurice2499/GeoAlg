@@ -16,8 +16,8 @@ namespace CastleCrushers.Tests
             Test4();
             Test5();
             Test6();
-            Debug.LogWarning("Test 7");
             Test7();
+            Test8();
         }
 
         public void Test1()
@@ -135,6 +135,18 @@ namespace CastleCrushers.Tests
                 Assert.AreApproximatelyEqual((e1 + e2).y, (p1 + p2).y, 1e-6f);
             }
             Assert.AreEqual(solver.GreedyCover().Count, 2);
+        }
+
+        public void Test8()
+        {
+            List<LineSegment> lst = new List<LineSegment>()
+            {
+                new LineSegment(new Vector2(0,0), new Vector2(1,1)),
+                new LineSegment(new Vector2(2,2), new Vector2(3,3)),
+                new LineSegment(new Vector2(4,4), new Vector2(5,5))
+            };
+            ShotSolver solver = new ShotSolver(lst);
+            Assert.AreEqual(solver.GreedyCover().Count, 3);
         }
     }
 }
