@@ -44,7 +44,7 @@ namespace CastleCrushers {
 
 		private const int ENDLESS_START = 3;
 		private const int ENDLESS_INCREASE = 1;
-		private const int ENDLESS_MAX = 200;
+		private const int ENDLESS_MAX = 25;
 
 		private DownwardSweepLine sweep;
 		private ShotSolver shotSolver;
@@ -268,40 +268,34 @@ namespace CastleCrushers {
             }
 
 			// Split intersections into multiple walls doesnt always work. If there are many walls we cant just simply split
-			foreach (Intersection intersection in intersections) {
-				if (intersection.one.hits > 0 || intersection.two.hits > 0) {
-					continue;
-				} else if (intersection.one.Magnitude < 2 * MIN_WALL_SIZE || intersection.two.Magnitude < 2 * MIN_WALL_SIZE) {
-					if (intersection.one.Magnitude < 2 * MIN_WALL_SIZE) {
-						intersection.one.hits += 1;
-					} else {
-						intersection.two.hits += 1;
-					}
-				} else {
-					Vector2 point = (Vector2)intersection.two.Intersect(intersection.one);
-					LineObject oneTophalf = new LineObject(intersection.one.Highest(), point);
-					if (oneTophalf.Magnitude > MIN_WALL_SIZE) {
-						walls.Add(oneTophalf);
-					}
-
-					LineObject twoTophalf = new LineObject(intersection.two.Highest(), point);
-					if (twoTophalf.Magnitude > MIN_WALL_SIZE) {
-						walls.Add(twoTophalf);
-					}
-
-					intersection.one.NewHighest(point);
-					intersection.two.NewHighest(point);
-
-					if (intersection.one.Magnitude < MIN_WALL_SIZE) {
-						intersection.one.hits += 1;
-					}
-					if (intersection.two.Magnitude < MIN_WALL_SIZE) {
-						intersection.two.hits += 1;
-					}
+			Dictionary<LineObject, List<Vector2>> map = new Dictionary<LineObject, List<Vector2>>();
+			for (int i = 0; i < intersections.Count; i++) {
+				if (!map.ContainsKey(intersections[i].one)) {
+					map.Add(intersections[i].one, new List<Vector2>());
+				}
+				if (!map.ContainsKey(intersections[i].two)) {
+					map.Add(intersections[i].two, new List<Vector2>());
+				}
+				Vector2? intersection = intersections[i].one.Intersect(intersections[i].two);
+				// safety check
+				if (intersection != null) {
+					map[intersections[i].one].Add((Vector2)intersection);
+					map[intersections[i].two].Add((Vector2)intersection);
 				}
 			}
 
-			walls.RemoveAll(item => item.hits > 0);
+			foreach (LineObject oldSeg in map.Keys) {
+				List<Vector2> points = map[oldSeg];
+				points.Add(oldSeg.Point1);
+				points.Add(oldSeg.Point2);
+				points.Sort((a, b) => a.x.CompareTo(b.x));
+				walls.Remove(oldSeg);
+				for (int i = 0; i < points.Count - 1; i++) {
+					walls.Add(new LineObject(points[i], points[i + 1]));
+				}
+			}
+
+			//walls.RemoveAll(item => item.hits > 0);
 
 			// Remove all too short walls
 			walls.RemoveAll(item => item.Magnitude < MIN_WALL_SIZE);
