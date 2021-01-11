@@ -230,9 +230,9 @@ namespace CastleCrushers {
 
 		public void GenerateNewLevel(int maxWalls) {
 			ClearLevel();
-
-			// Generator code
-			walls = new List<LineObject>();
+            
+            // Generator code
+            walls = new List<LineObject>();
 			List<LineObject> eventWalls = new List<LineObject>();
 
 			int N = maxWalls;

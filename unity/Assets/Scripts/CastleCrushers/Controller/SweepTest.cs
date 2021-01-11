@@ -93,18 +93,21 @@
 
             // Run it 3 times because it is randomized. I dont expect to catch all bugs but at least this is better than only once
             // NOTE: NOT fixed this test case for horizontal line segments
-            for (int N = 0; N < 3; N++)
+            for (int N = 0; N < 10; N++)
             {
                 // Generator code
                 List<LineObject> lines = new List<LineObject>();
-                for (int i = 0; i < maxWalls; i++)
+                while (lines.Count < maxWalls)
                 {
                     Vector2 position1 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
                     Vector2 position2 = new Vector3(UnityEngine.Random.Range(MIN_WIDTH, MAX_WIDTH), UnityEngine.Random.Range(MIN_HEIGHT, MAX_HEIGHT));
 
                     LineObject newLine = new LineObject(position1, position2);
 
-                    lines.Add(newLine);
+                    if( newLine.IsHorizontal == false)
+                    {
+                        lines.Add(newLine);
+                    }
                 }
 
                 DownwardSweepLine sweep = new DownwardSweepLine(lines);
