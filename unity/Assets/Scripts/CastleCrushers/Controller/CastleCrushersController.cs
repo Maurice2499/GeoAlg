@@ -149,7 +149,7 @@ namespace CastleCrushers {
 			eventObjects.gameObject.SetActive(!eventObjects.gameObject.activeSelf);
         }
 
-		private void updateEventsVis(List<LineObject> eventWalls) {
+		private void updateEventsVis(List<LineObject> eventWalls, List<SweepEvent> eventPoints) {
 			if (sweep == null) {
 				return;
             }
@@ -159,26 +159,23 @@ namespace CastleCrushers {
 				Destroy(child.gameObject);
             }
 
-			List<SweepEvent> events = sweep.producedEvents;
-			foreach (SweepEvent ev in events) {
-				if (ev.EventType == EventType.INTERSECT) {
-					continue;
-                } else {
-					Color color = Color.green;
-					if (ev.EventType == EventType.DELETE) {
-						color = Color.red;
-                    }
-					drawLine(new Vector3(ev.Pos.x - 0.1f, ev.Pos.y, -1),
-						new Vector3(ev.Pos.x + 0.1f, ev.Pos.y, -1),
-						0.2f,
-						color,
-						eventObjects);
+			foreach (SweepEvent ev in eventPoints) {
+				Color color = Color.green; // Default: insert
+				if (ev.EventType == EventType.DELETE) {
+					color = Color.red;
+				} else if (ev.EventType == EventType.INTERSECT) {
+					color = Color.blue;
                 }
+				drawLine(new Vector3(ev.Pos.x - 0.1f, ev.Pos.y, -3),
+					new Vector3(ev.Pos.x + 0.1f, ev.Pos.y, -3),
+					0.2f,
+					color,
+					eventObjects);
 			}
 
 			foreach (LineObject wall in eventWalls) {
-				drawLine(new Vector3(wall.Point1.x, wall.Point1.y, -1),
-					new Vector3(wall.Point2.x, wall.Point2.y, -1),
+				drawLine(new Vector3(wall.Point1.x, wall.Point1.y, -2),
+					new Vector3(wall.Point2.x, wall.Point2.y, -2),
 					0.05f,
 					Color.yellow,
 					eventObjects);
@@ -260,6 +257,16 @@ namespace CastleCrushers {
 			sweep = new DownwardSweepLine(walls);
 			List<Intersection> intersections = sweep.Run();
 
+			List<SweepEvent> eventPoints = new List<SweepEvent>();
+			foreach (SweepEvent ev in sweep.producedEvents) {
+				SweepEvent copy = new SweepEvent(ev.EventType); // deep copy
+				copy.StatusItem = new StatusItem(new LineObject(ev.StatusItem.LineObject.Point1, ev.StatusItem.LineObject.Point2));
+				if (ev.IntersectingStatusItem != null) {
+					copy.IntersectingStatusItem = new StatusItem(new LineObject(ev.IntersectingStatusItem.LineObject.Point1, ev.IntersectingStatusItem.LineObject.Point2));
+				}
+				eventPoints.Add(copy);
+            }
+
 			// Split intersections into multiple walls doesnt always work. If there are many walls we cant just simply split
 			foreach (Intersection intersection in intersections) {
 				if (intersection.one.hits > 0 || intersection.two.hits > 0) {
@@ -325,7 +332,7 @@ namespace CastleCrushers {
 
 			List<Line> greedyShots = shotSolver.GreedyCover();
 			maxShots = greedyShots.Count;
-			updateEventsVis(eventWalls);
+			updateEventsVis(eventWalls, eventPoints);
 			updateSolverVis(greedyShots);
 		}
 
