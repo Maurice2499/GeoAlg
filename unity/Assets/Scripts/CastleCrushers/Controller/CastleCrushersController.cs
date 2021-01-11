@@ -25,6 +25,7 @@ namespace CastleCrushers {
 		[SerializeField] private GameObject advanceButton;
 
 		[SerializeField] private Transform eventObjects;
+		[SerializeField] private Transform solverShotObjects;
 
 		[SerializeField] private bool endless;
 
@@ -35,7 +36,6 @@ namespace CastleCrushers {
 		public List<LineObject> shots = new List<LineObject>();
 
 		public List<LineObject> walls = new List<LineObject>();
-		public List<LineObject> eventWalls = new List<LineObject>();
 
 		private const float MIN_WIDTH = -7.8f;
 		private const float MAX_WIDTH = 7.8f;
@@ -47,6 +47,7 @@ namespace CastleCrushers {
 		private const int ENDLESS_MAX = 200;
 
 		private DownwardSweepLine sweep;
+		private ShotSolver shotSolver;
 
 		// Use this for initialization
 		void Start() {
@@ -144,11 +145,11 @@ namespace CastleCrushers {
 			walls = new List<LineObject>();
 		}
 
-		public void toggleEvents() {
+		public void toggleEventsVis() {
 			eventObjects.gameObject.SetActive(!eventObjects.gameObject.activeSelf);
         }
 
-		private void updateEvents() {
+		private void updateEventsVis(List<LineObject> eventWalls) {
 			if (sweep == null) {
 				return;
             }
@@ -184,6 +185,23 @@ namespace CastleCrushers {
 			}
         }
 
+		public void toggleSolutionVis() {
+			solverShotObjects.gameObject.SetActive(!solverShotObjects.gameObject.activeSelf);
+		}
+		private void updateSolverVis(List<Line> lines) {
+			foreach (Transform shot in solverShotObjects) {
+				Destroy(shot.gameObject);
+			}
+			foreach (Line line in lines) {
+				Vector2 dir = (line.Point2 - line.Point1).normalized;
+				Vector3 start = line.Point1 - 30 * dir;
+				Vector3 end = line.Point1 + 30 * dir;
+				start.z = -1;
+				end.z = -1;
+				drawLine(start, end, 0.1f, Color.magenta, solverShotObjects);
+            }
+        }
+
 		private void drawLine(Vector3 start, Vector3 end, float width, Color color, Transform parent) {
 			GameObject line = new GameObject("event", typeof(LineRenderer));
 			line.transform.parent = parent;
@@ -217,7 +235,7 @@ namespace CastleCrushers {
 
 			// Generator code
 			walls = new List<LineObject>();
-			eventWalls = new List<LineObject>();
+			List<LineObject> eventWalls = new List<LineObject>();
 
 			int N = maxWalls;
 			while (N > 0) {
@@ -303,11 +321,12 @@ namespace CastleCrushers {
 			}
 
 			// Use ShotSolver to find the budget of shots
-			ShotSolver shotSolver = new ShotSolver(walls);
+			shotSolver = new ShotSolver(walls);
 
 			List<Line> greedyShots = shotSolver.GreedyCover();
 			maxShots = greedyShots.Count;
-			updateEvents();
+			updateEventsVis(eventWalls);
+			updateSolverVis(greedyShots);
 		}
 
 		// Updates textures of walls according to whether they have been shot or not.

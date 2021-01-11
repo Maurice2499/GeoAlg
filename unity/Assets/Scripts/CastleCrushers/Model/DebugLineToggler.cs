@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace CastleCrushers {
 
-	public class ToggleEventVis : MonoBehaviour {
+	public class DebugLineToggler : MonoBehaviour {
 
 		CastleCrushersController controller;
 		void Start() {
@@ -12,8 +12,11 @@ namespace CastleCrushers {
 		}
 
 		void Update() {
-			if (Input.GetKeyDown(KeyCode.V)) {
-				controller.toggleEvents();
+			if (Input.GetKeyDown(KeyCode.I)) {
+				controller.toggleEventsVis();
+            }
+			if (Input.GetKeyDown(KeyCode.S)) {
+				controller.toggleSolutionVis();
             }
 		}
 	}
