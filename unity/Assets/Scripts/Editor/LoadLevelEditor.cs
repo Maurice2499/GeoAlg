@@ -368,13 +368,15 @@ public class LoadLevelEditor : ScriptedImporter
 
         // normalize coordinates
         var rect = BoundingBoxComputer.FromPoints(points);
+        var height = 7f;
+        var width = 11f;
         if (rect.width <= rect.height) {
-            points = Normalize(rect, 7f, points);
+            points = Normalize(rect, height, points);
         } else {
-            points = Normalize(rect, 15.8f, points);
+            points = Normalize(rect, width, points);
             rect = BoundingBoxComputer.FromPoints(points);
-            if (rect.height > 7f) {
-                points = Normalize(rect, 7f * rect.width / rect.height, points);
+            if (rect.height > height) {
+                points = Normalize(rect, height * rect.width / rect.height, points);
             }
         }
 
