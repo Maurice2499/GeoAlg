@@ -37,10 +37,10 @@ namespace CastleCrushers {
 
 		public List<LineObject> walls = new List<LineObject>();
 
-		private const float MIN_WIDTH = -7.8f;
-		private const float MAX_WIDTH = 7.8f;
-		private const float MIN_HEIGHT = -3.5f;
-		private const float MAX_HEIGHT = 3.5f;
+		private float MIN_WIDTH;
+		private float MAX_WIDTH;
+		private float MIN_HEIGHT;
+		private float MAX_HEIGHT;
 
 		private const int ENDLESS_START = 3;
 		private const int ENDLESS_INCREASE = 1;
@@ -52,6 +52,13 @@ namespace CastleCrushers {
 
 		// Use this for initialization
 		void Start() {
+			var height = Camera.main.orthographicSize * 2;
+			var width = height * Camera.main.aspect;
+			MIN_WIDTH = - width / 2 * 0.9f;
+			MAX_WIDTH = width / 2 * 0.9f;
+			MIN_HEIGHT = - height / 2 * 0.7f;
+			MAX_HEIGHT = height / 2 * 0.7f;
+
 			// run tests
 			SweepTest test = new SweepTest();
 
