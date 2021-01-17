@@ -1,9 +1,11 @@
 # Ruler of the Plane
 
-Our game is called LinesIntersection, and our game files can be found in 
-unity\Assets\LinesIntersection and unity\Scripts\LinesIntersection
+Our game is called Castle Crushers, and our game files can be found in 
+unity\Assets\CastleCrushers and unity\Scripts\CastleCrushers. All of our modifications can be found inside these subdirectories.
 
-We added a LinesController, LinesPoints, LinesSegments, and LinesLevel script in the Scripts directory.
-We added a Game, Menu and victory scene in the LinesIntersection/Scenes directory.
+Debug features:
+- press 's' to show computed solution
+- press 'i' to show sweep line input (yellow) and events (green, red, blue).
+- press spacebar to skip a level in endless
 
-We have not yet gotten around to planning how the algorithms and the datastructures will be implemented, as setting up Unity took more time than expected.
+Have fun!
