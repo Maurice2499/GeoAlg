@@ -125,8 +125,6 @@ namespace CastleCrushers
                 (this.StatusItem == other.StatusItem && this.IntersectingStatusItem == other.IntersectingStatusItem) ||
                 (this.StatusItem == other.IntersectingStatusItem && this.IntersectingStatusItem == other.StatusItem)))
             {
-                // TODO: Do we also want intersection events to be equal if they are about the same location?
-                // Then, I think we may be able to handle cases where >2 lines intersect, but we will only return 1 intersection point between 2 of the >2 lines.
                 return true;
             } else
             {
@@ -344,8 +342,6 @@ namespace CastleCrushers
 
         private void CheckIntersection(StatusItem left, StatusItem right, IBST<SweepEvent> events)
         {
-            //Debug.LogWarning("left: " + left.LineObject.line.Line.Slope);
-            //Debug.LogWarning("right: " + right.LineObject.line.Line.Slope);
             Vector2? intersect = left.LineObject.Intersect(right.LineObject);
             if (intersect != null)
             {

@@ -129,7 +129,6 @@ namespace CastleCrushers
         // Returns the number of shots that are required to cover all lines greedily
         public List<Line> GreedyCover()
         {
-            // TODO: check: or if N <= 1?
             if (N <= 2)
             {
                 if (N == 0)
@@ -178,7 +177,6 @@ namespace CastleCrushers
                 covered[i] = false;
             }
 
-            // TODO fix
             int x = N;
             while (IsAllTrue(covered) == false && x > 0)
             {
