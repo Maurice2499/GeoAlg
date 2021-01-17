@@ -189,13 +189,11 @@ namespace CastleCrushers
                     {
                         if (DownwardSweepLine.ComparePreEvent)
                         {
-                            // TODO if slope is undefined (one of the two is vertical).
                             float min = Math.Min(LineObject.Highest().y, other.LineObject.Highest().y);
                             return LineObject.X(min) > other.LineObject.X(min) ? 1 : -1;
                         }
                         else
                         {
-                            // TODO if slope is undefined (one of the two is vertical).
                             float max = Math.Max(LineObject.Lowest().y, other.LineObject.Lowest().y);
                             return LineObject.X(max) > other.LineObject.X(max) ? 1 : -1;
                         }
@@ -270,7 +268,7 @@ namespace CastleCrushers
             if (ev.IsStart)
             {
                 ComparePreEvent = true;
-                if (!status.Insert(ev.StatusItem)) // TODO: the comparer of StatusItem (which depends on the sweepline like what the fuck man 
+                if (!status.Insert(ev.StatusItem))
                 {
                     throw new ArgumentException("Failed to insert into state");
                 }

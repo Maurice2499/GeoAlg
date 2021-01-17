@@ -9,7 +9,6 @@ namespace CastleCrushers
 {
     public class ShotSolver
     {
-        // OR do we want Line here instead of LineSegment? Idk, but efficiency is nice here. Thats also why array
         public LineSegment[] lines;
         public int N;
         public Vector2[] endpoints;

@@ -303,8 +303,6 @@ namespace CastleCrushers {
 				}
 			}
 
-			//walls.RemoveAll(item => item.hits > 0);
-
 			// Remove all too short walls
 			walls.RemoveAll(item => item.Magnitude < MIN_WALL_SIZE);
 
@@ -374,17 +372,6 @@ namespace CastleCrushers {
 
 		public LineObject(Vector2 point1, Vector2 point2, GameObject obj = null) : base(point1, point2) {
 			this.obj = obj;
-		}
-
-		// Changes the highest point.
-		public void NewHighest(Vector2 newTop) {
-			Point1 = newTop;
-			Point2 = Lowest();
-
-			// explicitly calculate variables that are most used
-			XInterval = new FloatInterval(Point1.x, Point2.x);
-			YInterval = new FloatInterval(Point1.y, Point2.y);
-			Line = new Line(Point1, Point2);
 		}
 
 		public Vector2 Highest() // Assumes this line is not horizontal
