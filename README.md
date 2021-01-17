@@ -8,4 +8,6 @@ Debug features:
 - press 'i' to show sweep line input (yellow) and events (green, red, blue).
 - press spacebar to skip a level in endless
 
+Custom levels can be created from ipe files. A wall is created by drawing individual line segments with the polygon tool, meaning every polygon you draw must consist of two points. The maximum number of shots is determined by the number after the underscore in the filename. As the interesting algorithms are only used for level generation, creating levels manually mostly serves as a fun extra feature.
+
 Have fun!
